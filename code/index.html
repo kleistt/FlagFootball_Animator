@@ -239,6 +239,26 @@ body{
   border-radius:4px;padding:3px 6px;font-size:9px;font-weight:600;
   color:#FCA5A5;margin-left:6px;
 }
+
+/* ========== READ PROGRESSIONS ========== */
+.read-strip{
+  height:24px;background:var(--bg2);border-top:1px solid var(--bg3);
+  display:none;align-items:center;padding:0 16px;position:relative;flex-shrink:0;
+}
+.read-strip.active{display:flex}
+.read-strip-bar{flex:1;height:14px;background:var(--bg3);border-radius:3px;position:relative;overflow:hidden}
+.read-seg{position:absolute;top:0;height:100%;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.02em}
+.read-seg.open{background:rgba(74,222,128,.3);border:1px solid rgba(74,222,128,.5)}
+.read-seg.closed{background:rgba(251,191,36,.3);border:1px solid rgba(251,191,36,.5)}
+.read-seg.illegal{background:rgba(252,165,165,.2);border:1px solid rgba(252,165,165,.5)}
+.read-playhead{position:absolute;top:-2px;width:2px;height:18px;background:#fff;border-radius:1px;transition:none;z-index:2}
+.reads-btn{
+  width:32px;height:28px;border-radius:4px;border:1px solid var(--bg3);background:transparent;
+  color:var(--text3);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.03em;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;
+}
+.reads-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
 .drawer-hdr{display:flex;align-items:flex-start;justify-content:space-between}
 .qs-btn{
   background:transparent;border:1px solid var(--bg3);border-radius:4px;
@@ -304,6 +324,13 @@ body{
       </div>
     </div>
 
+    <!-- Read strip -->
+    <div class="read-strip" id="readStrip">
+      <div class="read-strip-bar" id="readStripBar">
+        <div class="read-playhead" id="readPlayhead"></div>
+      </div>
+    </div>
+
     <!-- Strategy bar -->
     <div class="strat-bar">
       <div class="si"><span class="sl">Status</span><span id="sbStatus"></span></div>
@@ -325,6 +352,7 @@ body{
         <div class="progress-fill" id="progressFill"></div>
         <div class="progress-handle" id="progressHandle"></div>
       </div>
+      <button class="reads-btn" id="btnReads" title="Toggle read progressions (D)">R</button>
       <div class="speed-grp">
         <button class="sbtn" data-speed="0.5">0.5x</button>
         <button class="sbtn active" data-speed="1">1x</button>
@@ -1274,10 +1302,84 @@ function drawPlayFrame(t){
     }
   });
 
+  // Read progression overlays
+  if(readsMode && play.reads && play.reads.length > 0){
+    let activeRead = null;
+    for(let ri = 0; ri < play.reads.length; ri++){
+      const rd = play.reads[ri];
+      if(t >= rd.windowStart && t <= rd.windowEnd){
+        activeRead = rd;
+        break;
+      }
+    }
+
+    play.reads.forEach(rd => {
+      const targetPlayer = play.players.find(pl => pl.role === rd.target);
+      if(!targetPlayer) return;
+      const pi = play.players.indexOf(targetPlayer);
+      const pos = positions[pi];
+
+      const badgeX = pos.x + r * 0.8;
+      const badgeY = pos.y - r * 0.8;
+      const badgeR = Math.max(7, r * 0.5);
+      ctx.beginPath();
+      ctx.fillStyle = !rd.closedLegal ? 'rgba(239,68,68,.85)' : (rd.staysOpen ? 'rgba(34,197,94,.85)' : 'rgba(251,191,36,.85)');
+      ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.font = 'bold ' + Math.max(7, badgeR * 1.1) + 'px -apple-system,sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(rd.readNumber.toString(), badgeX, badgeY);
+
+      if(activeRead && activeRead.readNumber === rd.readNumber){
+        const glowPhase = (Date.now() % 1000) / 1000;
+        const glowR = r + 8 + Math.sin(glowPhase * Math.PI * 2) * 4;
+        ctx.beginPath();
+        ctx.strokeStyle = !rd.closedLegal ? 'rgba(239,68,68,.5)' : (rd.staysOpen ? 'rgba(34,197,94,.5)' : 'rgba(251,191,36,.5)');
+        ctx.lineWidth = 3;
+        ctx.arc(pos.x, pos.y, glowR, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    });
+  }
+
+  // Update read strip every frame
+  updateReadStrip(t);
+
   /* FIX 6: update time display every frame */
   const elapsed = (t * currentPlay.durationMs / 1000).toFixed(1);
   const total = (currentPlay.durationMs / 1000).toFixed(1);
   document.getElementById('timeDisplay').textContent = elapsed + 's / ' + total + 's';
+}
+
+function updateReadStrip(t){
+  const strip = document.getElementById('readStrip');
+  if(!readsMode || !currentPlay.reads || currentPlay.reads.length === 0){
+    strip.classList.remove('active');
+    return;
+  }
+  strip.classList.add('active');
+  const bar = document.getElementById('readStripBar');
+  const reads = currentPlay.reads;
+
+  if(!bar.dataset.playId || bar.dataset.playId !== currentPlay.id){
+    bar.dataset.playId = currentPlay.id;
+    let segsHtml = '<div class="read-playhead" id="readPlayhead"></div>';
+    reads.forEach(r => {
+      const left = (r.windowStart * 100).toFixed(1);
+      const width = ((r.windowEnd - r.windowStart) * 100).toFixed(1);
+      const cls = !r.closedLegal ? 'illegal' : (r.staysOpen ? 'open' : 'closed');
+      segsHtml += '<div class="read-seg '+cls+'" style="left:'+left+'%;width:'+width+'%">'+r.readNumber+': '+r.target+'</div>';
+    });
+    bar.innerHTML = segsHtml;
+  }
+
+  const ph = document.getElementById('readPlayhead');
+  if(ph) ph.style.left = (t * 100) + '%';
 }
 
 /* ========== S6: ANIMATION ENGINE ========== */
@@ -1315,6 +1417,12 @@ function tick(ts){
 function updateProgress(){
   document.getElementById('progressFill').style.width = (animT*100)+'%';
   document.getElementById('progressHandle').style.left = (animT*100)+'%';
+}
+
+function tickReadsGlow(){
+  if(!readsMode || animState === 'playing') return;
+  drawPlayFrame(animT);
+  requestAnimationFrame(tickReadsGlow);
 }
 
 /* ========== S7: UI CONTROLLERS ========== */
@@ -1551,7 +1659,15 @@ function showTooltip(player, pos){
   } else {
     actionText = 'Route runner / decoy';
   }
-  document.getElementById('ttAction').textContent = actionText;
+  let fullAction = actionText;
+  if(readsMode && currentPlay.reads){
+    const readInfo = currentPlay.reads.find(r => r.target === player.role);
+    if(readInfo){
+      fullAction += ' | Read ' + readInfo.readNumber + ': ' + readInfo.label;
+      if(!readInfo.closedLegal) fullAction += ' (OPEN ONLY)';
+    }
+  }
+  document.getElementById('ttAction').textContent = fullAction;
   tt.classList.add('show');
   const vpRect = document.getElementById('fieldVP').getBoundingClientRect();
   let tx = canvasOffX + pos.x + 20;
@@ -1639,6 +1755,15 @@ function initInteractions(){
   progressEl.addEventListener('pointermove',(e)=>{if(scrubbing)scrub(e)});
   progressEl.addEventListener('pointerup',(e)=>{scrubbing=false;progressEl.releasePointerCapture(e.pointerId)});
 
+  // Reads toggle
+  document.getElementById('btnReads').addEventListener('click',()=>{
+    readsMode = !readsMode;
+    document.getElementById('btnReads').classList.toggle('active', readsMode);
+    document.getElementById('readStripBar').dataset.playId = '';
+    drawPlayFrame(animT);
+    if(readsMode && animState !== 'playing') requestAnimationFrame(tickReadsGlow);
+  });
+
   // Speed buttons
   document.querySelectorAll('.sbtn').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -1656,6 +1781,7 @@ function initInteractions(){
     if(e.code==='KeyR'){pauseAnim();animT=0;updateProgress();drawPlayFrame(0);document.getElementById('btnPlay').innerHTML='&#9654;';}
     if(e.code==='ArrowDown'){e.preventDefault();const idx=PLAYS.indexOf(currentPlay);if(idx<PLAYS.length-1)selectPlay(PLAYS[idx+1]);}
     if(e.code==='ArrowUp'){e.preventDefault();const idx=PLAYS.indexOf(currentPlay);if(idx>0)selectPlay(PLAYS[idx-1]);}
+    if(e.code==='KeyD'){readsMode=!readsMode;document.getElementById('btnReads').classList.toggle('active',readsMode);document.getElementById('readStripBar').dataset.playId='';drawPlayFrame(animT);if(readsMode&&animState!=='playing')requestAnimationFrame(tickReadsGlow);}
   });
 }
 
