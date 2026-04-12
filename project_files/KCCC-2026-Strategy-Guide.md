@@ -32,11 +32,18 @@ Mid-America Sports Complex, Shawnee, KS
 | **Format** | Single elimination |
 | **Snap** | Ball must be on ground at snap; bad snap = dead ball |
 | **Play clock** | 25 seconds to snap after ball is spotted |
-| **Interceptions** | Dead at point of interception -- NO returns; offense takes over at opponent 5-yard line |
+| **Interceptions** | Dead at point of interception -- NO returns; intercepting team starts their next drive at their own 5-yard line |
 | **Fumbles** | No fumbles -- ball is dead where it hits the ground |
 | **Feet** | 1 foot in bounds required for a catch |
 | **Dead ball** | Flag pulled, out of bounds, TD, interception, knee/hand/ball touches ground, flag falls off |
-| **Overtime** | From 5-yard line, 1 play each, most yards wins; championship games: from midfield, 3 plays, must go for 2 |
+| **Overtime** | Standard: 1 play from 5-yd line, most yards wins (negative yardage > interception > incomplete pass). Championship: from midfield, 3 plays, mandatory 2-pt from 12 yds. OT starts CLOSED. Defensive penalty in OT = 10 yds + optional extra play. |
+| **Game ending** | Game CANNOT end on a defensive penalty (unless offense declines) |
+| **Half-distance** | Within 10 yds of goal, penalties are half the distance to the goal |
+| **Spinning** | Spinning is allowed; cannot leave feet (no diving/jumping with ball) |
+| **Ball spotting** | Ball spotted where the BELT is when flag pulled, not where ball is held |
+| **Play clock warning** | 1 free warning before delay of game penalty is enforced |
+| **Defenders at LOS** | Non-rushing defenders may stand at the LOS |
+| **Flag guarding** | Ball carrier using arm/hand to prevent flag pull is a penalty |
 | **Arrive** | Check in 15 min before game time; bring photo ID |
 
 ---
@@ -218,7 +225,7 @@ F2 creates doubt in the defense:
 | **Category** | Passing |
 | **Open/Closed** | CLOSED eligible -> next play OPEN |
 | **Formation** | QB under center. F1 wide right. M1 wide left. M2 far right. F2 offset left. |
-| **Play** | 1) F1 runs a 7-yard out-cut toward the right sideline. 2) M1 runs a 12-yard deep out to the left sideline. 3) M2 runs a deep clear-out right. 4) F2 sits in a short outlet left. 5) QB reads: F1 7yd out first (quick Closed completion), M1 deep out second (if Open). |
+| **Play** | 1) F1 runs a 7-yard out-cut toward the right sideline. 2) M1 runs a 12-yard deep out to the left sideline. 3) M2 runs a deep clear-out right. 4) F2 sits in a short outlet left. 5) QB reads: F1 7yd out first (quick Closed completion), M1 deep out second (OPEN STATUS ONLY -- male-to-male is illegal when Closed). |
 | **When to call** | Quick-game Closed completion. Safe 7-yard gain. Reliable clock eater. PAT from 5 yards (1-pt attempt). |
 | **Key read** | High-low read on the flat defender. If flat defender jumps the F1 out, hit M1 deep out over the top. If flat defender sags, throw the F1 out. |
 
@@ -233,7 +240,7 @@ F2 creates doubt in the defense:
 | **Formation** | QB under center. F1 wide right. M1 wide left. M2 far right. F2 offset left. |
 | **Play** | 1) M1 runs a deep corner route at 15 yards. 2) F1 runs a 10-yard crossing route (left to right). 3) F2 sits as a 3-yard outlet. 4) M2 runs a clear-out. 5) QB reads high to low: M1 corner, F1 crossing, F2 outlet. |
 | **When to call** | Three-level progression with depth. Need chunk yards on a Closed play. PAT from 12 yards (2-pt attempt). |
-| **Key read** | Read high to low. M1 deep corner is the big play (but stays Closed if completed M-to-M). F1 crossing is the safe Closed completion. F2 outlet is the emergency dump. |
+| **Key read** | Read high to low. M1 deep corner is the big play (but stays Closed if completed M-to-M). Note: M1 deep corner is ONLY a legal target when this play is run from Open status (male-to-male is illegal on Closed plays). F1 crossing is the safe Closed completion. F2 outlet is the emergency dump. |
 
 ---
 
@@ -259,7 +266,7 @@ F2 creates doubt in the defense:
 | **Formation** | QB under center. F1 and M2 stacked on the right side. M1 wide left. F2 offset left. |
 | **Play** | 1) F1 runs a corner route, breaking outside at 12 yards. 2) M2 runs a post route, breaking inside at 12 yards. 3) F1 and M2 cross paths at about 9 yards -- natural rub confuses man coverage. 4) M1 runs a deep clear-out left. 5) F2 sits as short outlet. |
 | **When to call** | Against man coverage. The crossing paths create confusion on who covers whom. Need a Closed completion with chunk yards. |
-| **Key read** | F1 corner is the primary (Closed completion, flips Open). If the defender switches to follow F1 outside, M2 post comes open inside (but stays Closed if completed). |
+| **Key read** | F1 corner is the primary (Closed completion, flips Open). If the defender switches to follow F1 outside, M2 post comes open inside (OPEN STATUS ONLY -- male-to-male is illegal when Closed). |
 
 ---
 
@@ -368,8 +375,8 @@ F2 creates doubt in the defense:
 |--------|------|
 | **Category** | Motion |
 | **Open/Closed** | CLOSED eligible -> next play OPEN |
-| **Formation** | QB under center. F1 right side, motions left pre-snap. F2 left side, motions right pre-snap. M1 wide left. M2 wide right. |
-| **Play** | 1) Both females are rush threats -- F2 motions from left and F1 motions from right. 2) QB hands off to F1. 3) F1 has triple option: rush, throw to M1 deep, or find F2 in the flat. 4) M1 and M2 run deep clearing routes. |
+| **Formation** | QB under center. F2 left side, motions right pre-snap and gets set. THEN F1 right side motions left pre-snap (only one player in motion at a time). M1 wide left. M2 wide right. |
+| **Play** | 1) F2 motions from left to right and sets. Then F1 motions from right to left (sequential -- only one in motion at a time). Both females are rush threats. 2) QB hands off to F1. 3) F1 has triple option: rush, throw to M1 deep, or find F2 in the flat. 4) M1 and M2 run deep clearing routes. |
 | **When to call** | Outside NRZ. When you want to confuse man coverage with both females as rush threats. Maximum misdirection. |
 | **Key read** | Triple-option look. F1 reads the defense post-hand-off: if edge is soft, rush. If deep is open, throw to M1. F2 is the safety valve in the flat. |
 
@@ -674,6 +681,7 @@ If you lose the toss and they take the ball:
 | Jumping by ball carrier | **ILLEGAL** | Ball spotted at point of jump |
 | Diving | **ILLEGAL** | Cannot leave feet to avoid a defender |
 | Interception return | **NOT ALLOWED** | Ball is dead at point of interception |
+| Flag guarding (arm over flags while running) | **ILLEGAL** | Offensive penalty, 10 yards + loss of down |
 
 ---
 
