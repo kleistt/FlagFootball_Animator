@@ -498,7 +498,7 @@ const PLAYS = [
         route:[[50,0,0],[48,-1,.15],[45,-2,.30]],
         action:{type:'handoff',target:'F1',t:.47}},
       {role:'F1',gender:'female',start:[60,-2],
-        route:[[60,-2,0],[55,-1,.08],[50,0,.15],[48,0,.25],[45,1,.35],[40,3,.47],[35,6,.60],[30,10,.80]],
+        route:[[60,-2,0],[60,-2,.12],[55,-1,.20],[50,0,.28],[48,0,.35],[45,1,.42],[40,3,.52],[35,6,.63],[30,10,.80]],
         action:{type:'rush',t:.47}},
       {role:'M1',gender:'male',start:[25,0.5],
         route:[[25,0.5,0],[22,4,.2],[18,10,.4],[15,16,.7]],
@@ -507,7 +507,7 @@ const PLAYS = [
         route:[[72,0.5,0],[75,3,.15],[78,8,.4]],
         catchT:null},
       {role:'F2',gender:'female',start:[30,-3],
-        route:[[30,-3,0],[35,-2,.05],[42,-1,.1],[48,0,.15],[52,1,.25],[58,3,.4],[65,6,.6]],
+        route:[[30,-3,0],[35,-2,.03],[42,-1,.06],[48,0,.09],[52,1,.12],[52,1,.15],[55,2,.25],[58,3,.4],[65,6,.6]],
         action:{type:'rush',t:.15}}
     ]
   },
@@ -844,6 +844,7 @@ let bgCtx, playCtx;
 let activeCategory = 'All';
 let rafId = null;
 let quickSheetMode = false;
+let swipeInProgress = false;
 
 /* FIX 7: Route cache for performance */
 let routeCache = [];
@@ -1341,6 +1342,7 @@ function initInteractions(){
   const canvas = document.getElementById('playCanvas');
 
   canvas.addEventListener('pointerdown', (e)=>{
+    if(swipeInProgress) return;
     const rect = canvas.getBoundingClientRect();
     const cx = (e.clientX - rect.left);
     const cy = (e.clientY - rect.top);
@@ -1352,7 +1354,7 @@ function initInteractions(){
     for(let i = 0; i < positions.length; i++){
       const dx = cx - positions[i].x;
       const dy = cy - positions[i].y;
-      if(Math.sqrt(dx*dx+dy*dy) < r + 10){
+      if(Math.sqrt(dx*dx+dy*dy) < Math.max(HIT_R, r + 10)){
         hit = currentPlay.players[i];
         break;
       }
@@ -1443,8 +1445,11 @@ function initSwipe(){
     const touch=e.changedTouches[0];
     const dx=touch.clientX-startX;
     const dy=touch.clientY-startY;
-    if(Math.abs(dx)<50)return;
+    const threshold = window.innerWidth < 500 ? 30 : 50;
+    if(Math.abs(dx)<threshold)return;
     if(Math.abs(dx)>Math.abs(dy)){
+      swipeInProgress = true;
+      setTimeout(()=>{ swipeInProgress = false; }, 100);
       const idx=PLAYS.indexOf(currentPlay);
       if(dx<0 && idx<PLAYS.length-1) selectPlay(PLAYS[idx+1]);
       else if(dx>0 && idx>0) selectPlay(PLAYS[idx-1]);
