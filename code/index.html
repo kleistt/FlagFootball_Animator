@@ -35,8 +35,8 @@ body{
   --badge-closed-bg:#7F1D1D;--badge-closed-fg:#FCA5A5;
 }
 
-/* ========== LAYOUT ========== */
-.app{display:flex;height:100vh;width:100vw;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+/* ========== LAYOUT (mobile-first) ========== */
+.app{display:flex;flex-direction:column;height:100vh;width:100vw;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 
 /* ========== DRAWER ========== */
 .drawer{
@@ -51,6 +51,7 @@ body{
   flex:1;padding:9px 2px;font-size:9px;font-weight:600;text-align:center;
   text-transform:uppercase;letter-spacing:.04em;color:var(--text3);
   cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
 }
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab:hover{color:var(--text2)}
@@ -151,41 +152,76 @@ body{
 .sbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .time-display{font-size:11px;font-weight:600;color:var(--text2);min-width:80px;text-align:center;font-variant-numeric:tabular-nums;flex-shrink:0}
 
-/* ========== PORTRAIT / NARROW SCREENS ========== */
-@media (max-width: 700px), (orientation: portrait) {
-  .app{flex-direction:column}
+/* ========== MOBILE HEADER ========== */
+.mobile-header{
+  height:44px;background:var(--bg2);border-bottom:1px solid var(--bg3);
+  display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0;
+  position:relative;z-index:101;cursor:pointer;
+}
+.mh-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.mh-toggle{display:flex;align-items:center;gap:4px;font-size:9px;flex-shrink:0}
+
+/* ========== INFO STRIP ========== */
+.info-strip{
+  height:32px;background:var(--bg2);border-top:1px solid var(--bg3);
+  display:flex;align-items:center;padding:0 10px;gap:10px;font-size:10px;flex-shrink:0;
+  overflow:hidden;position:relative;z-index:101;
+}
+.is-item{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.is-label{color:var(--text3);font-size:8px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.is-val{font-weight:600}
+.is-divider{width:1px;height:16px;background:var(--bg3);flex-shrink:0}
+
+/* ========== MOBILE-FIRST DEFAULTS (mobile = base) ========== */
+/* On mobile: hide drawer, overlays, strat-bar; show mobile-header + info-strip */
+.drawer{display:none}
+.play-info{display:none}
+.legend{display:none}
+.strat-bar{display:none}
+
+/* Mobile field + transport tweaks */
+.field-vp{padding:6px}
+.transport{height:56px;padding:0 10px;gap:8px;position:relative;z-index:101}
+.tbtn{width:44px;height:44px;font-size:14px}
+.tbtn.play-btn{width:48px;height:48px;font-size:18px}
+.sbtn{min-height:44px;padding:6px 10px}
+.time-display{font-size:10px;min-width:62px}
+.reads-btn{min-width:44px;min-height:44px}
+.progress-handle{width:36px;height:36px}
+
+/* ========== TABLET+ (landscape, >= 700px) ========== */
+@media (min-width: 700px) and (orientation: landscape) {
+  .app{flex-direction:row}
   .drawer{
-    width:100%;min-width:unset;max-height:38vh;
-    border-right:none;border-bottom:1px solid var(--bg3);
+    display:flex;width:260px;min-width:260px;
   }
-  .play-list{max-height:calc(38vh - 90px)}
-  .field-vp{min-height:35vh}
-  .play-info{max-width:180px}
-  .play-info .pi-name{font-size:13px}
-  .legend{font-size:9px;padding:5px 8px}
-  .strat-bar{height:38px;font-size:10px;padding:0 10px;gap:8px}
-  .transport{height:56px;padding:0 10px;gap:8px}
-  .tbtn{width:40px;height:40px;font-size:14px}
-  .tbtn.play-btn{width:48px;height:48px;font-size:18px}
-  .time-display{font-size:10px!important;min-width:62px!important}
-  .tab{padding:14px 2px;font-size:10px}
-  .badge{font-size:9px}
-  .play-card .pd{font-size:10px}
-  .qs-section-label{font-size:10px}
-  .qs-strip-card{padding:10px 6px}
-  .qs-strip-card .qsc-name{font-size:10px}
-  .qs-strip-card .qsc-num{font-size:9px}
-  .qs-goto-card{padding:10px 8px}
-  .qs-goto-card .qg-name{font-size:10px}
-  .qs-pat-row{padding:8px 0;font-size:10px}
+  .mobile-header{display:none}
+  .info-strip{display:none}
+  .play-info{display:block}
+  .legend{display:flex}
+  .strat-bar{display:flex}
+  .field-vp{padding:12px;min-height:unset}
+  .transport{height:56px;padding:0 16px;gap:10px;position:static;z-index:auto}
+  .mobile-header{position:static;z-index:auto}
+  .info-strip{position:static;z-index:auto}
+  .tbtn{width:36px;height:36px}
+  .tbtn.play-btn{width:44px;height:44px}
+  .sbtn{min-height:unset;padding:6px 10px}
+  .reads-btn{min-width:32px;min-height:28px;width:32px}
+  .progress-handle{width:24px;height:24px}
+  .tab{min-height:unset}
+  .time-display{font-size:11px;min-width:80px}
+  .bottom-sheet{display:none !important}
+  .bs-backdrop{display:none !important}
 }
 
 /* Narrow phone: prevent transport overflow */
 @media (max-width: 460px) {
   .sbtn[data-speed="0.5"]{display:none}
-  .transport{gap:5px!important;padding:0 8px!important;padding-bottom:env(safe-area-inset-bottom)!important}
-  .time-display{min-width:44px!important;font-size:9px!important;letter-spacing:0!important}
-  .reads-btn{width:26px!important}
+  .transport{gap:4px;padding:0 6px;padding-bottom:env(safe-area-inset-bottom)}
+  .time-display{min-width:44px;font-size:9px;letter-spacing:0}
+  .reads-btn{min-width:44px;min-height:44px;width:44px}
+  .info-strip{gap:6px;padding:0 6px;font-size:9px}
 }
 
 /* ========== QUICK SHEET ========== */
@@ -274,10 +310,90 @@ body{
   cursor:pointer;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;flex-shrink:0;
   min-width:36px;min-height:32px;display:flex;align-items:center;justify-content:center;
 }
+
+/* ========== BOTTOM SHEET (mobile only) ========== */
+.bottom-sheet{
+  display:none;
+  position:fixed;top:0;left:0;right:0;
+  height:100vh;
+  z-index:100;
+  border-radius:16px 16px 0 0;
+  background:var(--bg2);
+  box-shadow:0 -4px 20px rgba(0,0,0,.5);
+  flex-direction:column;
+  will-change:transform;
+}
+.bs-handle-area{
+  padding:10px 16px 8px;cursor:grab;display:flex;flex-direction:column;align-items:center;
+  flex-shrink:0;user-select:none;-webkit-user-select:none;touch-action:none;
+}
+.bs-handle{
+  width:36px;height:4px;border-radius:2px;background:var(--text3);margin-bottom:6px;
+}
+.bs-peek-title{
+  font-size:11px;color:var(--text2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;text-align:center;
+}
+.bs-header-row{
+  display:flex;align-items:center;width:100%;gap:8px;
+}
+.bs-content{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 6px 6px;
+  min-height:0;touch-action:pan-y;
+}
+.bs-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+
+/* ========== DETAIL PANEL (desktop ≥1024px) ========== */
+.detail-panel{display:none}
+@media (min-width:1024px){
+  .detail-panel{
+    display:flex;flex-direction:column;width:300px;min-width:300px;
+    background:var(--bg2);border-left:1px solid var(--bg3);
+    overflow-y:auto;padding:16px;gap:14px;
+  }
+  .play-info{display:none}
+}
+.dp-header{margin-bottom:2px}
+.dp-name{font-size:18px;font-weight:700;margin-bottom:8px}
+.dp-badges{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.dp-section{margin-bottom:2px}
+.dp-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:6px}
+.dp-notes{font-size:12px;color:var(--text2);line-height:1.5}
+.dp-toggle{font-size:11px;line-height:1.5}
+.dp-toggle-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.dp-toggle-ctx{font-size:10px;color:var(--text2);line-height:1.4;margin-top:4px}
+.dp-player-card{
+  display:flex;align-items:center;gap:8px;padding:6px 8px;
+  background:var(--bg3);border-radius:5px;margin-bottom:4px;font-size:11px;
+}
+.dp-role{font-weight:700;min-width:28px}
+.dp-action{color:var(--text2);font-size:10px;flex:1}
+.dp-read-item{
+  display:flex;align-items:baseline;gap:8px;padding:5px 0;
+  border-bottom:1px solid var(--bg3);font-size:11px;line-height:1.4;
+}
+.dp-read-num{
+  width:20px;height:20px;border-radius:50%;background:var(--accent);
+  color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;
+}
+.dp-read-detail{flex:1}
+.dp-read-target{font-weight:600}
+.dp-read-note{font-size:10px;color:var(--text2);margin-top:2px}
+.dp-read-warn{font-size:9px;color:#FCA5A5;font-weight:600}
 </style>
 </head>
 <body>
 <div class="app">
+  <!-- MOBILE HEADER (visible on mobile only) -->
+  <div class="mobile-header" id="mobileHeader">
+    <span class="mh-name" id="mhName"></span>
+    <span id="mhStatus"></span>
+    <div class="mh-toggle" id="mhToggle"></div>
+  </div>
+
   <!-- DRAWER -->
   <div class="drawer">
     <div class="drawer-hdr">
@@ -349,6 +465,17 @@ body{
       <div class="strat-notes" id="sbNotes"></div>
     </div>
 
+    <!-- Info Strip (visible on mobile only, replaces play-info + strat-bar) -->
+    <div class="info-strip" id="infoStrip">
+      <div class="is-item"><span class="is-label">Status</span><span id="isStatus"></span></div>
+      <div class="is-divider"></div>
+      <div class="is-item"><span class="is-label">Toggle</span><span id="isToggle"></span></div>
+      <div class="is-divider"></div>
+      <div class="is-item"><span class="is-label">Key</span><span id="isKey" class="is-val"></span></div>
+      <div class="is-divider"></div>
+      <div class="is-item"><span class="is-label">Field</span><span id="isField" class="is-val"></span></div>
+    </div>
+
     <!-- Transport -->
     <div class="transport">
       <button class="tbtn" id="btnReset" title="Reset">&#9198;</button>
@@ -368,6 +495,43 @@ body{
       </div>
     </div>
   </div>
+
+  <!-- DETAIL PANEL (desktop only, ≥1024px) -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="dp-header">
+      <div class="dp-name" id="dpName"></div>
+      <div class="dp-badges" id="dpBadges"></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Description</div>
+      <div class="dp-notes" id="dpNotes"></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Toggle Analysis</div>
+      <div class="dp-toggle" id="dpToggle"></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Players</div>
+      <div class="dp-players" id="dpPlayers"></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Read Progression</div>
+      <div class="dp-reads" id="dpReads"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM SHEET (mobile play list) -->
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="bs-handle-area" id="bsHandleArea">
+      <div class="bs-handle"></div>
+      <div class="bs-header-row">
+        <div class="bs-peek-title" id="bsPeekTitle">Select Play</div>
+        <button class="qs-btn" id="bsBtnQS" title="Game Day Quick Sheet" style="margin:0;padding:4px 6px;min-height:24px;min-width:28px;font-size:8px">QS</button>
+      </div>
+    </div>
+    <div class="bs-content" id="bsContent"></div>
+  </div>
+  <div class="bs-backdrop" id="bsBackdrop"></div>
 </div>
 
 <script>
@@ -1076,8 +1240,9 @@ function buildRouteCache(){
 
 function resizeCanvases(){
   const vp = document.getElementById('fieldVP');
-  const vw = vp.clientWidth - 24;
-  const vh = vp.clientHeight - 24;
+  const pad = isMobile() ? 8 : 24;
+  const vw = vp.clientWidth - pad;
+  const vh = vp.clientHeight - pad;
   dpr = window.devicePixelRatio || 2;
   const aspect = FIELD.width / FIELD.total;
   if(vw/vh > aspect){ fieldH = vh; fieldW = fieldH * aspect; }
@@ -1619,12 +1784,16 @@ function selectPlay(play){
   renderPlayList();
   updatePlayInfo();
   updateStratBar();
+  updateMobileHeader();
+  updateInfoStrip();
+  updateDetailPanel();
   drawFieldBG();
   drawPlayFrame(0);
   document.getElementById('btnPlay').innerHTML='&#9654;';
   if(quickSheetMode) renderQuickSheet();
   renderContextualRules();
   updateToggleWarning();
+  if(isMobile() && sheetInitialized) setSheetState('peek');
 }
 
 function updatePlayInfo(){
@@ -1644,6 +1813,111 @@ function updateStratBar(){
   document.getElementById('sbKey').style.color = p.keyPlayer.startsWith('F')?'var(--female)':'var(--text1)';
   document.getElementById('sbKey').textContent = p.keyPlayer;
   document.getElementById('sbNotes').textContent = p.notes;
+}
+
+function isMobile(){
+  return window.innerWidth <= 700 || (window.innerWidth < window.innerHeight);
+}
+
+function updateMobileHeader(){
+  const p = currentPlay;
+  document.getElementById('mhName').textContent = p.name;
+  document.getElementById('mhStatus').innerHTML = '<span class="badge '+(p.eligibility==='closed'?'b-closed':'b-open')+'">'+p.eligibility+'</span>';
+  document.getElementById('mhToggle').innerHTML = '<span class="badge '+(p.eligibility==='closed'?'b-closed':'b-open')+'" style="font-size:7px">'+p.eligibility.toUpperCase()+'</span><span style="color:var(--text3)">&rarr;</span><span class="badge '+(p.nextStatus==='open'?'b-open':'b-closed')+'" style="font-size:7px">'+p.nextStatus.toUpperCase()+'</span>';
+}
+
+function updateInfoStrip(){
+  const p = currentPlay;
+  document.getElementById('isStatus').innerHTML = '<span class="badge '+(p.eligibility==='closed'?'b-closed':'b-open')+'" style="font-size:8px">'+p.eligibility+'</span>';
+  document.getElementById('isToggle').innerHTML = '<span class="badge '+(p.eligibility==='closed'?'b-closed':'b-open')+'" style="font-size:7px">'+p.eligibility.toUpperCase()+'</span> <span style="color:var(--text3)">&rarr;</span> <span class="badge '+(p.nextStatus==='open'?'b-open':'b-closed')+'" style="font-size:7px">'+p.nextStatus.toUpperCase()+'</span>';
+  document.getElementById('isKey').textContent = p.keyPlayer;
+  document.getElementById('isKey').style.color = p.keyPlayer.startsWith('F') ? 'var(--female)' : 'var(--text1)';
+  document.getElementById('isField').textContent = p.fieldPos;
+}
+
+function updateDetailPanel(){
+  const dp = document.getElementById('detailPanel');
+  if(!dp) return;
+  const p = currentPlay;
+  if(!p) return;
+
+  // Name + badges
+  document.getElementById('dpName').textContent = p.name;
+  const catBadge = p.cat==='passing'?'b-pass':p.cat==='rushing'?'b-rush':p.cat==='motion'?'b-motion':p.cat==='nrz'?'b-nrz':'b-pass';
+  const catLabel = CAT_MAP[p.cat] || p.cat;
+  document.getElementById('dpBadges').innerHTML =
+    '<span class="badge '+(p.eligibility==='closed'?'b-closed':'b-open')+'">'+p.eligibility+'</span>'+
+    '<span class="badge '+catBadge+'">'+catLabel+'</span>';
+
+  // Notes
+  document.getElementById('dpNotes').textContent = p.notes;
+
+  // Toggle analysis
+  const tDiv = document.getElementById('dpToggle');
+  const fromCls = p.eligibility==='closed'?'b-closed':'b-open';
+  const toCls = p.nextStatus==='open'?'b-open':'b-closed';
+  let toggleCtx = '';
+  if(p.nextStatus==='open' && p.eligibility==='closed'){
+    toggleCtx = 'Completing this play flips status to Open, giving full passing flexibility next play.';
+  } else if(p.nextStatus==='closed'){
+    toggleCtx = 'Completing this play flips status to Closed. Next play must involve a female in the completion.';
+  } else if(p.nextStatus==='open' && p.eligibility==='open'){
+    toggleCtx = 'Stays Open. Maintains full passing flexibility.';
+  }
+  tDiv.innerHTML =
+    '<div class="dp-toggle-row">'+
+      '<span class="badge '+fromCls+'" style="font-size:9px">'+p.eligibility.toUpperCase()+'</span>'+
+      '<span style="color:var(--text3)">&rarr;</span>'+
+      '<span class="badge '+toCls+'" style="font-size:9px">'+p.nextStatus.toUpperCase()+'</span>'+
+    '</div>'+
+    '<div class="dp-toggle-ctx">'+toggleCtx+'</div>'+
+    '<div style="font-size:10px;color:var(--text2);margin-top:4px"><span style="color:var(--text3);font-weight:600">Field:</span> '+p.fieldPos+'</div>';
+
+  // Players
+  const playersDiv = document.getElementById('dpPlayers');
+  playersDiv.innerHTML = '';
+  p.players.forEach(function(pl){
+    const card = document.createElement('div');
+    card.className = 'dp-player-card';
+    const color = pl.gender==='male'?'var(--male)':'var(--female)';
+    let actionText = '';
+    if(pl.action){
+      if(pl.action.type==='throw') actionText = 'Throws to '+pl.action.target;
+      else if(pl.action.type==='handoff') actionText = 'Hands off to '+pl.action.target;
+      else if(pl.action.type==='rush') actionText = 'Ball carrier (rush)';
+    } else if(pl.catchT){
+      actionText = 'Primary receiver';
+    } else {
+      actionText = 'Route runner / decoy';
+    }
+    card.innerHTML =
+      '<span class="dp-role" style="color:'+color+'">'+pl.role+'</span>'+
+      '<span class="dp-action">'+actionText+'</span>';
+    playersDiv.appendChild(card);
+  });
+
+  // Reads
+  const readsDiv = document.getElementById('dpReads');
+  if(p.reads && p.reads.length > 0){
+    readsDiv.innerHTML = '';
+    p.reads.forEach(function(r, i){
+      const item = document.createElement('div');
+      item.className = 'dp-read-item';
+      let warn = '';
+      if(!r.closedLegal) warn = '<div class="dp-read-warn">OPEN STATUS ONLY</div>';
+      let primary = r.isPrimary ? ' (primary)' : '';
+      item.innerHTML =
+        '<span class="dp-read-num">'+(i+1)+'</span>'+
+        '<div class="dp-read-detail">'+
+          '<div><span class="dp-read-target">'+(r.target||'?')+'</span> &mdash; '+(r.label||'')+primary+'</div>'+
+          '<div class="dp-read-note">'+(r.readKey||'')+'</div>'+
+          warn+
+        '</div>';
+      readsDiv.appendChild(item);
+    });
+  } else {
+    readsDiv.innerHTML = '<span style="color:var(--text3);font-size:10px">No reads data</span>';
+  }
 }
 
 function showTooltip(player, pos){
@@ -1817,24 +2091,243 @@ function initSwipe(){
   },{passive:true});
 }
 
-/* ========== S10: INIT ========== */
+/* ========== S10: BOTTOM SHEET ========== */
+let sheetState = 'peek';
+let sheetInitialized = false;
+
+function getTransportHeight(){
+  var transport = document.querySelector('.transport');
+  return transport ? transport.offsetHeight : 56;
+}
+
+function getSheetTranslateY(state){
+  const vh = window.innerHeight;
+  const transportH = getTransportHeight();
+  switch(state){
+    case 'peek': return vh - 56 - transportH;
+    case 'half': return vh * 0.45;
+    case 'full': return vh * 0.15;
+    default: return vh - 56 - transportH;
+  }
+}
+
+function setSheetState(state, animate){
+  if(animate === undefined) animate = true;
+  const sheet = document.getElementById('bottomSheet');
+  const backdrop = document.getElementById('bsBackdrop');
+  sheetState = state;
+  const ty = getSheetTranslateY(state);
+  sheet.style.transition = animate ? 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' : 'none';
+  sheet.style.transform = 'translateY(' + ty + 'px)';
+  if(state === 'peek'){
+    backdrop.style.opacity = '0';
+    backdrop.style.pointerEvents = 'none';
+  } else {
+    backdrop.style.opacity = '1';
+    backdrop.style.pointerEvents = 'auto';
+  }
+  if(currentPlay){
+    document.getElementById('bsPeekTitle').textContent = currentPlay.name;
+  }
+}
+
+function getCurrentTranslateY(el){
+  var transform = el.style.transform;
+  var match = transform.match(/translateY\(([^)]+)px\)/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
+function initBottomSheet(){
+  if(!isMobile()) return;
+  if(sheetInitialized) return;
+  var sheet = document.getElementById('bottomSheet');
+  var content = document.getElementById('bsContent');
+  var tabs = document.getElementById('tabs');
+  var playList = document.getElementById('playList');
+  var quickSheet = document.getElementById('quickSheet');
+  var rulesPanel = document.getElementById('rulesPanel');
+  content.appendChild(tabs);
+  content.appendChild(playList);
+  content.appendChild(quickSheet);
+  content.appendChild(rulesPanel);
+  sheet.style.display = 'flex';
+  setSheetState('peek', false);
+  sheetInitialized = true;
+  initSheetDrag();
+
+  // Prevent bottom sheet touches from propagating to canvas underneath
+  sheet.addEventListener('touchstart', function(e){
+    // Only stop propagation — don't prevent default so scrolling works in bs-content
+    e.stopPropagation();
+  }, {passive:true});
+
+  // Backdrop click closes to peek
+  document.getElementById('bsBackdrop').addEventListener('click', function(){
+    setSheetState('peek');
+  });
+
+  // Mobile header tap opens sheet to half
+  document.getElementById('mobileHeader').addEventListener('click', function(){
+    if(sheetState === 'peek'){
+      setSheetState('half');
+    }
+  });
+
+  // Mobile QS button mirrors the drawer QS button
+  document.getElementById('bsBtnQS').addEventListener('click', function(e){
+    e.stopPropagation();
+    document.getElementById('btnQS').click();
+    var btn = document.getElementById('bsBtnQS');
+    btn.textContent = quickSheetMode ? 'LIST' : 'QS';
+    btn.style.color = quickSheetMode ? 'var(--accent)' : '';
+    btn.style.borderColor = quickSheetMode ? 'var(--accent)' : '';
+  });
+}
+
+function moveContentBackToDrawer(){
+  if(!sheetInitialized) return;
+  var drawer = document.querySelector('.drawer');
+  var tabs = document.getElementById('tabs');
+  var playList = document.getElementById('playList');
+  var quickSheet = document.getElementById('quickSheet');
+  var rulesPanel = document.getElementById('rulesPanel');
+  // Insert after drawer-hdr (which contains the QS button)
+  var drawerHdr = drawer.querySelector('.drawer-hdr');
+  // tabs goes after drawer-hdr
+  drawerHdr.after(tabs);
+  tabs.after(playList);
+  playList.after(quickSheet);
+  quickSheet.after(rulesPanel);
+  document.getElementById('bottomSheet').style.display = 'none';
+  sheetInitialized = false;
+}
+
+function initSheetDrag(){
+  var handleArea = document.getElementById('bsHandleArea');
+  var sheet = document.getElementById('bottomSheet');
+  var startY, startTranslateY, isDragging = false;
+  var lastY, lastTime, velocity;
+  var startX, isHorizontal = false;
+
+  handleArea.addEventListener('touchstart', function(e){
+    // Stop propagation so canvas doesn't see this touch
+    e.stopPropagation();
+    startY = e.touches[0].clientY;
+    startX = e.touches[0].clientX;
+    startTranslateY = getCurrentTranslateY(sheet);
+    lastY = startY;
+    lastTime = Date.now();
+    velocity = 0;
+    isDragging = false;
+    isHorizontal = false;
+  }, {passive:false});
+
+  handleArea.addEventListener('touchmove', function(e){
+    var currentY = e.touches[0].clientY;
+    var currentX = e.touches[0].clientX;
+    var dy = currentY - startY;
+    var dx = currentX - startX;
+
+    // If we haven't committed to a direction yet, check axis
+    if(!isDragging && !isHorizontal){
+      if(Math.abs(dy) < 4 && Math.abs(dx) < 4) return; // wait for threshold
+      if(Math.abs(dx) > Math.abs(dy)){
+        // Horizontal gesture on handle — ignore (don't drag sheet)
+        isHorizontal = true;
+        return;
+      }
+      // Vertical — start dragging
+      isDragging = true;
+      sheet.style.transition = 'none';
+    }
+    if(!isDragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var now = Date.now();
+    var dt = now - lastTime;
+    if(dt > 0) velocity = (currentY - lastY) / dt;
+    lastY = currentY;
+    lastTime = now;
+    var newY = Math.max(getSheetTranslateY('full'), startTranslateY + dy);
+    // Don't let it go below peek
+    newY = Math.min(getSheetTranslateY('peek'), newY);
+    sheet.style.transform = 'translateY(' + newY + 'px)';
+    // Update backdrop opacity
+    var range = getSheetTranslateY('peek') - getSheetTranslateY('full');
+    var progress = 1 - (newY - getSheetTranslateY('full')) / range;
+    document.getElementById('bsBackdrop').style.opacity = Math.max(0, Math.min(1, progress * 0.8)).toString();
+    document.getElementById('bsBackdrop').style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
+  }, {passive:false});
+
+  handleArea.addEventListener('touchend', function(e){
+    e.stopPropagation();
+    if(!isDragging){ isDragging = false; isHorizontal = false; return; }
+    isDragging = false;
+    isHorizontal = false;
+    var FLING_THRESHOLD = 0.5;
+    if(Math.abs(velocity) > FLING_THRESHOLD){
+      if(velocity > 0){
+        setSheetState(sheetState === 'full' ? 'half' : 'peek');
+      } else {
+        setSheetState(sheetState === 'peek' ? 'half' : 'full');
+      }
+      return;
+    }
+    var currentY = getCurrentTranslateY(sheet);
+    var distances = {
+      peek: Math.abs(currentY - getSheetTranslateY('peek')),
+      half: Math.abs(currentY - getSheetTranslateY('half')),
+      full: Math.abs(currentY - getSheetTranslateY('full'))
+    };
+    var nearest = 'peek';
+    var minDist = distances.peek;
+    if(distances.half < minDist){ nearest = 'half'; minDist = distances.half; }
+    if(distances.full < minDist){ nearest = 'full'; }
+    setSheetState(nearest);
+  });
+}
+
+function handleLayoutChange(){
+  var mobile = isMobile();
+  var content = document.getElementById('bsContent');
+  if(mobile && !sheetInitialized){
+    initBottomSheet();
+  } else if(!mobile && sheetInitialized){
+    moveContentBackToDrawer();
+  }
+  // Recalc sheet position on resize if mobile
+  if(mobile && sheetInitialized){
+    setSheetState(sheetState, false);
+  }
+}
+
+/* ========== S11: INIT ========== */
 function init(){
   resizeCanvases();
   buildDrawer();
   updatePlayInfo();
   updateStratBar();
+  updateMobileHeader();
+  updateInfoStrip();
+  updateDetailPanel();
   renderContextualRules();
   updateToggleWarning();
   initInteractions();
   initSwipe();
   drawPlayFrame(0);
+  initBottomSheet();
 
   /* FIX 8: resize debounce */
   let resizeTimer;
-  window.addEventListener('resize', ()=>{
+  const doResize = ()=>{
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(()=>{ resizeCanvases(); drawFieldBG(); drawPlayFrame(animT); }, 150);
-  });
+    resizeTimer = setTimeout(()=>{
+      resizeCanvases(); drawFieldBG(); drawPlayFrame(animT);
+      handleLayoutChange();
+    }, 150);
+  };
+  window.addEventListener('resize', doResize);
+  window.addEventListener('orientationchange', ()=> setTimeout(doResize, 200));
 }
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
