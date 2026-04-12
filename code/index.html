@@ -950,7 +950,7 @@ const PENALTIES_DB = {
   }
 };
 
-const CATEGORIES = ['All','Pass','Rush','Motion','NRZ'];
+const CATEGORIES = ['All','Pass','Rush','Motion','NRZ','Rules'];
 const CAT_MAP = {passing:'Pass',rushing:'Rush',motion:'Motion',nrz:'NRZ'};
 
 /* ========== QUICK SHEET DATA ========== */
@@ -1326,7 +1326,17 @@ function buildDrawer(){
       activeCategory = el.dataset.cat;
       tabsEl.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
       el.classList.add('active');
-      renderPlayList();
+      const rulesPanel = document.getElementById('rulesPanel');
+      const playList = document.getElementById('playList');
+      if(activeCategory === 'Rules'){
+        playList.style.display = 'none';
+        rulesPanel.style.display = 'flex';
+        renderRulesTab();
+      } else {
+        playList.style.display = '';
+        rulesPanel.style.display = 'none';
+        renderPlayList();
+      }
     });
   });
   renderPlayList();
@@ -1342,6 +1352,10 @@ function buildDrawer(){
     const qs = document.getElementById('quickSheet');
     qs.style.display = quickSheetMode ? 'flex' : 'none';
     if(quickSheetMode) renderQuickSheet();
+  });
+
+  document.getElementById('rulesSearch').addEventListener('input', () => {
+    if(activeCategory === 'Rules') renderRulesTab();
   });
 }
 
@@ -1410,6 +1424,81 @@ function renderQuickSheet(){
   });
 }
 
+function renderRulesTab(){
+  const panel = document.getElementById('rulesPanel');
+  const searchVal = (document.getElementById('rulesSearch').value || '').toLowerCase();
+  const filtered = searchVal ? RULES_DB.filter(r =>
+    r.shortText.toLowerCase().includes(searchVal) ||
+    r.fullText.toLowerCase().includes(searchVal) ||
+    r.category.toLowerCase().includes(searchVal)
+  ) : RULES_DB;
+
+  const grouped = {};
+  filtered.forEach(r => {
+    if(!grouped[r.category]) grouped[r.category] = [];
+    grouped[r.category].push(r);
+  });
+
+  const catOrder = ['open-closed','passing','rushing','motion','field','scoring','timing','penalties','dead-ball','overtime'];
+  let html = '';
+  catOrder.forEach(cat => {
+    if(!grouped[cat]) return;
+    html += '<div class="qs-section-label" style="margin-top:8px">' + cat.toUpperCase().replace('-',' ') + '</div>';
+    grouped[cat].forEach(r => {
+      html += '<div class="rule-card" data-rid="'+r.ruleId+'">';
+      html += '<div class="rc-cat">'+r.category.replace('-',' ')+'</div>';
+      html += '<div class="rc-short">'+r.shortText+'</div>';
+      html += '<div class="rc-full">';
+      html += '<div style="margin-bottom:4px">'+r.fullText+'</div>';
+      if(r.commonMistakes.length) html += '<div class="rc-mistakes">Common mistakes: '+r.commonMistakes.join('; ')+'</div>';
+      if(r.situationalTips.length) html += '<div class="rc-tips">Tips: '+r.situationalTips.join('; ')+'</div>';
+      html += '</div></div>';
+    });
+  });
+  document.getElementById('rulesList').innerHTML = html;
+  document.getElementById('rulesPanel').querySelectorAll('.rule-card').forEach(el => {
+    el.addEventListener('pointerdown', () => {
+      el.classList.toggle('expanded');
+    });
+  });
+}
+
+function renderContextualRules(){
+  const play = currentPlay;
+  if(!play) return;
+  const relevant = RULES_DB.filter(r =>
+    r.relatedPlays.includes('all') || r.relatedPlays.includes(play.id)
+  );
+  const specific = relevant.filter(r => !r.relatedPlays.includes('all'));
+  const show = specific.length > 0 ? specific.slice(0,4) : relevant.slice(0,3);
+
+  let html = '<div class="ctx-label">RULES</div>';
+  show.forEach(r => {
+    html += '<div class="ctx-rule-item">'+r.shortText+'</div>';
+  });
+
+  if(play.reads){
+    play.reads.forEach(r => {
+      if(!r.closedLegal){
+        html += '<div class="ctx-rule-item warning">Read '+r.readNumber+' ('+r.target+') only legal when run from Open status</div>';
+      }
+    });
+  }
+
+  document.getElementById('ctxRules').innerHTML = html;
+}
+
+function updateToggleWarning(){
+  const play = currentPlay;
+  const el = document.getElementById('sbWarning');
+  if(!play){el.innerHTML='';return;}
+  if(play.eligibility === 'open'){
+    el.innerHTML = '<span class="toggle-warning">Requires Open</span>';
+  } else {
+    el.innerHTML = '';
+  }
+}
+
 /* FIX 9: restructured selectPlay — single drawPlayFrame call at end */
 function selectPlay(play){
   currentPlay = play;
@@ -1425,6 +1514,8 @@ function selectPlay(play){
   drawPlayFrame(0);
   document.getElementById('btnPlay').innerHTML='&#9654;';
   if(quickSheetMode) renderQuickSheet();
+  renderContextualRules();
+  updateToggleWarning();
 }
 
 function updatePlayInfo(){
@@ -1600,6 +1691,8 @@ function init(){
   buildDrawer();
   updatePlayInfo();
   updateStratBar();
+  renderContextualRules();
+  updateToggleWarning();
   initInteractions();
   initSwipe();
   drawPlayFrame(0);
