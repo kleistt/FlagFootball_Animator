@@ -1,0 +1,10 @@
+.DS_Store
+.claude/
+inputs/
+outputs/
+archive/
+assets/
+checkpoints/
+*.jpeg
+*.jpg
+*.png

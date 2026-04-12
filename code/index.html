@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>KCCC 2026 — Flag Football Playbook</title>
+<style>
+/* ========== RESET & BASE ========== */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;touch-action:none}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#0F172A;color:#F8FAFC;
+}
+
+/* ========== CSS TOKENS ========== */
+:root{
+  --field-turf:#2D8C3C;--field-turf-dark:#267332;
+  --field-line:rgba(255,255,255,0.5);
+  --endzone-home:#1A3A5C;--endzone-away:#8C1A1A;
+  --nrz:rgba(255,200,0,0.10);--nrz-border:rgba(255,200,0,0.4);
+  --scrimmage:#00D4FF;--rush-line:rgba(239,68,68,0.4);
+  --male:#3B82F6;--male-stroke:#1D4ED8;
+  --female:#F472B6;--female-stroke:#DB2777;
+  --route:#F59E0B;--pass-arc:#EF4444;--handoff:#FACC15;
+  --selected:#FACC15;--ball:#92400E;
+  --bg1:#0F172A;--bg2:#1E293B;--bg3:#334155;
+  --text1:#F8FAFC;--text2:#94A3B8;--text3:#64748B;
+  --accent:#3B82F6;--accent-hover:#2563EB;
+  --badge-open-bg:#166534;--badge-open-fg:#4ADE80;
+  --badge-closed-bg:#7F1D1D;--badge-closed-fg:#FCA5A5;
+}
+
+/* ========== LAYOUT ========== */
+.app{display:flex;height:100vh;width:100vw}
+
+/* ========== DRAWER ========== */
+.drawer{
+  width:260px;min-width:260px;background:var(--bg2);
+  border-right:1px solid var(--bg3);display:flex;flex-direction:column;
+}
+.drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--bg3)}
+.drawer-hdr h1{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.drawer-hdr .sub{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+.tabs{display:flex;border-bottom:1px solid var(--bg3)}
+.tab{
+  flex:1;padding:9px 2px;font-size:9px;font-weight:600;text-align:center;
+  text-transform:uppercase;letter-spacing:.04em;color:var(--text3);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
+}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--text2)}
+.play-list{flex:1;overflow-y:auto;padding:6px}
+.play-card{
+  padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:3px;
+  transition:background .15s;border:1px solid transparent;
+}
+.play-card:hover{background:var(--bg3)}
+.play-card.active{background:#1E3A5F;border-color:var(--accent)}
+.play-card .pn{font-size:13px;font-weight:600;margin-bottom:4px}
+.play-card .pm{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.badge{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.03em}
+.b-open{background:var(--badge-open-bg);color:var(--badge-open-fg)}
+.b-closed{background:var(--badge-closed-bg);color:var(--badge-closed-fg)}
+.b-pass{background:#4C1D95;color:#C4B5FD}
+.b-rush{background:#78350F;color:#FCD34D}
+.b-motion{background:#164E63;color:#67E8F9}
+.b-nrz{background:#831843;color:#F9A8D4}
+.play-card .pd{font-size:10px;color:var(--text2);margin-top:5px;line-height:1.4}
+
+/* ========== MAIN ========== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.field-vp{flex:1;position:relative;display:flex;align-items:center;justify-content:center;padding:12px}
+.field-vp canvas{position:absolute}
+
+/* ========== LEGEND ========== */
+.legend{
+  position:absolute;top:8px;right:8px;background:rgba(15,23,42,.85);
+  border:1px solid var(--bg3);border-radius:6px;padding:8px 12px;font-size:10px;
+  display:flex;flex-direction:column;gap:5px;z-index:5;pointer-events:none;
+}
+.legend-item{display:flex;align-items:center;gap:7px}
+.lg-dot{width:10px;height:10px;border-radius:50%}
+.lg-line{width:16px;height:2.5px;border-radius:2px}
+.lg-dash{width:16px;height:0;border-top:2.5px dashed var(--pass-arc)}
+
+/* ========== PLAY INFO ========== */
+.play-info{
+  position:absolute;top:8px;left:8px;background:rgba(15,23,42,.88);
+  border:1px solid var(--bg3);border-radius:8px;padding:10px 14px;z-index:5;
+  max-width:260px;pointer-events:none;
+}
+.play-info .pi-name{font-size:15px;font-weight:700;margin-bottom:6px}
+.play-info .pi-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px}
+.pi-label{color:var(--text3);text-transform:uppercase;letter-spacing:.04em;font-weight:600;min-width:45px}
+.pi-arrow{color:var(--text3)}
+.play-info .pi-notes{font-size:10px;color:var(--text2);font-style:italic;margin-top:4px;line-height:1.4}
+
+/* ========== PLAYER TOOLTIP ========== */
+.tooltip{
+  position:absolute;background:rgba(15,23,42,.92);border:1px solid var(--bg3);
+  border-radius:8px;padding:8px 12px;z-index:10;pointer-events:none;
+  font-size:11px;display:none;max-width:180px;
+}
+.tooltip.show{display:block}
+.tooltip .tt-role{font-weight:700;font-size:13px;margin-bottom:2px}
+.tooltip .tt-gender{font-size:10px;color:var(--text2)}
+.tooltip .tt-action{font-size:10px;color:var(--route);margin-top:3px}
+
+/* ========== STRATEGY BAR ========== */
+.strat-bar{
+  height:44px;background:var(--bg2);border-top:1px solid var(--bg3);
+  display:flex;align-items:center;padding:0 16px;gap:16px;font-size:11px;
+  flex-shrink:0;
+}
+.si{display:flex;align-items:center;gap:5px}
+.sl{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.strat-notes{flex:1;text-align:right;color:var(--text2);font-style:italic;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ========== TRANSPORT BAR ========== */
+.transport{
+  height:56px;background:var(--bg2);border-top:1px solid var(--bg3);
+  display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;
+}
+.tbtn{
+  width:36px;height:36px;border-radius:6px;border:none;background:var(--bg3);
+  color:var(--text1);font-size:14px;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:background .15s;flex-shrink:0;
+}
+.tbtn:hover{background:#475569}
+.tbtn:active{background:#526580}
+.tbtn.play-btn{width:44px;height:44px;background:var(--accent);border-radius:50%;font-size:18px}
+.tbtn.play-btn:hover{background:var(--accent-hover)}
+.progress{flex:1;height:6px;background:var(--bg3);border-radius:3px;cursor:pointer;position:relative;touch-action:none}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;width:0%;transition:none}
+.progress-handle{
+  position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  background:#fff;transform:translate(-50%,-50%);left:0%;cursor:grab;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.speed-grp{display:flex;gap:3px;flex-shrink:0}
+.sbtn{
+  padding:3px 8px;border-radius:3px;border:1px solid #475569;background:transparent;
+  color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;
+}
+.sbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.time-display{font-size:11px;font-weight:600;color:var(--text2);min-width:80px;text-align:center;font-variant-numeric:tabular-nums;flex-shrink:0}
+
+/* ========== PORTRAIT / NARROW SCREENS ========== */
+@media (max-width: 700px), (orientation: portrait) {
+  .app{flex-direction:column}
+  .drawer{
+    width:100%;min-width:unset;max-height:38vh;
+    border-right:none;border-bottom:1px solid var(--bg3);
+  }
+  .play-list{max-height:calc(38vh - 80px)}
+  .field-vp{min-height:35vh}
+  .play-info{max-width:180px}
+  .play-info .pi-name{font-size:13px}
+  .legend{font-size:9px;padding:5px 8px}
+  .strat-bar{height:36px;font-size:10px;padding:0 8px;gap:8px}
+  .transport{height:48px;padding:0 8px;gap:6px}
+  .tbtn{width:30px;height:30px;font-size:12px}
+  .tbtn.play-btn{width:38px;height:38px;font-size:16px}
+  .time-display{font-size:9px!important;min-width:58px!important}
+}
+
+/* ========== QUICK SHEET ========== */
+.qs-section-label{
+  font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text3);margin-bottom:5px;
+}
+.qs-seq{margin-bottom:6px}
+.qs-seq-label{font-size:9px;font-weight:600;color:var(--accent);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.qs-strip{display:flex;gap:3px}
+.qs-strip-card{
+  flex:1;padding:5px 4px;border-radius:5px;cursor:pointer;
+  background:var(--bg3);border:1px solid transparent;text-align:center;
+  transition:border-color .15s;
+}
+.qs-strip-card:hover{border-color:var(--accent)}
+.qs-strip-card .qsc-num{font-size:8px;color:var(--text3);margin-bottom:1px}
+.qs-strip-card .qsc-name{font-size:8px;font-weight:600;line-height:1.2}
+.qs-strip-card.active{border-color:var(--selected);background:#1E3A5F}
+.qs-goto-card{
+  padding:6px 5px;border-radius:5px;cursor:pointer;
+  background:var(--bg3);border:1px solid transparent;
+  transition:border-color .15s;
+}
+.qs-goto-card:hover{border-color:var(--accent)}
+.qs-goto-card .qg-name{font-size:9px;font-weight:600;margin-bottom:2px}
+.qs-goto-card .qg-meta{display:flex;gap:3px;flex-wrap:wrap}
+.qs-goto-card.active{border-color:var(--selected);background:#1E3A5F}
+.qs-pat-row{display:flex;align-items:baseline;gap:6px;padding:4px 0;border-bottom:1px solid var(--bg3);font-size:9px}
+.qs-pat-dist{font-weight:700;color:var(--accent);min-width:28px;flex-shrink:0}
+.qs-pat-rec{flex:1;color:var(--text1)}
+.qs-pat-note{color:var(--text3);font-style:italic;font-size:8px;text-align:right;flex-shrink:0;max-width:80px}
+.drawer-hdr{display:flex;align-items:flex-start;justify-content:space-between}
+.qs-btn{
+  background:transparent;border:1px solid var(--bg3);border-radius:4px;
+  color:var(--text2);font-size:9px;font-weight:700;padding:3px 6px;
+  cursor:pointer;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;flex-shrink:0;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- DRAWER -->
+  <div class="drawer">
+    <div class="drawer-hdr">
+      <div><h1>PLAYBOOK</h1><div class="sub">KCCC 2026 Flag Football</div></div>
+      <button class="qs-btn" id="btnQS" title="Game Day Quick Sheet">QS</button>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="play-list" id="playList"></div>
+    <div id="quickSheet" style="display:none;flex:1;overflow-y:auto;padding:10px 10px 6px;flex-direction:column">
+      <div class="qs-section-label">SCRIPTED SEQUENCES</div>
+      <div id="qsSequences"></div>
+      <div class="qs-section-label" style="margin-top:10px">GO-TO PLAYS</div>
+      <div id="qsGoTo" style="display:grid;grid-template-columns:1fr 1fr;gap:4px"></div>
+      <div class="qs-section-label" style="margin-top:10px">PAT DECISION</div>
+      <div id="qsPAT"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="field-vp" id="fieldVP">
+      <canvas id="bgCanvas"></canvas>
+      <canvas id="playCanvas"></canvas>
+
+      <!-- Play info overlay -->
+      <div class="play-info" id="playInfo">
+        <div class="pi-name" id="piName"></div>
+        <div class="pi-row"><span class="pi-label">Status</span><span id="piStatus"></span></div>
+        <div class="pi-row"><span class="pi-label">Toggle</span><span id="piToggle"></span></div>
+        <div class="pi-row"><span class="pi-label">Key</span><span id="piKey"></span></div>
+        <div class="pi-notes" id="piNotes"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item"><div class="lg-dot" style="background:var(--male);border:2px solid var(--male-stroke)"></div>Male</div>
+        <div class="legend-item"><div class="lg-dot" style="background:var(--female);border:2px solid var(--female-stroke)"></div>Female</div>
+        <div class="legend-item"><div class="lg-line" style="background:var(--route)"></div>Route</div>
+        <div class="legend-item"><div class="lg-dash"></div>Pass</div>
+      </div>
+
+      <!-- Player tooltip -->
+      <div class="tooltip" id="tooltip">
+        <div class="tt-role" id="ttRole"></div>
+        <div class="tt-gender" id="ttGender"></div>
+        <div class="tt-action" id="ttAction"></div>
+      </div>
+    </div>
+
+    <!-- Strategy bar -->
+    <div class="strat-bar">
+      <div class="si"><span class="sl">Status</span><span id="sbStatus"></span></div>
+      <div class="si"><span class="sl">Toggle</span><span id="sbToggle"></span></div>
+      <div class="si"><span class="sl">Field</span><span id="sbField" style="font-weight:600"></span></div>
+      <div class="si"><span class="sl">Key</span><span id="sbKey" style="font-weight:600"></span></div>
+      <div class="strat-notes" id="sbNotes"></div>
+    </div>
+
+    <!-- Transport -->
+    <div class="transport">
+      <button class="tbtn" id="btnReset" title="Reset">&#9198;</button>
+      <button class="tbtn" id="btnStepBack" title="Step back">&#9664;&#9664;</button>
+      <button class="tbtn play-btn" id="btnPlay" title="Play">&#9654;</button>
+      <button class="tbtn" id="btnStepFwd" title="Step forward">&#9654;&#9654;</button>
+      <span class="time-display" id="timeDisplay">0.0s / 0.0s</span>
+      <div class="progress" id="progress">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-handle" id="progressHandle"></div>
+      </div>
+      <div class="speed-grp">
+        <button class="sbtn" data-speed="0.5">0.5x</button>
+        <button class="sbtn active" data-speed="1">1x</button>
+        <button class="sbtn" data-speed="2">2x</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+;(function(){
+'use strict';
+
+/* ========== S1: CONFIG & FIELD CONSTANTS ========== */
+const FIELD = { total:68, width:22, ez:7, play:54, nrzDepth:5 };
+const YARD_MID = FIELD.ez + FIELD.play/2; // 34
+
+/* FIX 1: 4 NRZ zones including near home goal line */
+const NRZ_ZONES = [
+  {start:7, end:12},    // 5 yds from home goal line
+  {start:29, end:34},   // 5 yds before midfield (home side)
+  {start:34, end:39},   // 5 yds after midfield (away side)
+  {start:56, end:61}    // 5 yds before away goal line
+];
+
+const PLAYER_R_BASE = 14;
+const HIT_R = 24;
+
+/* ========== S2: PLAY DATA ========== */
+/* FIX 2: per-play durationMs, corrected event timing
+   FIX 3: corrected scrimmageYd values
+   FIX 4: Mismatch nextStatus -> 'closed'
+   FIX 5: Flood Right target -> 'F2', F2 catchT=0.86, M2 catchT=null
+   FIX 10: route waypoint t values adjusted to match temporal analysis */
+const PLAYS = [
+  /* 1. Storm */
+  {
+    id:'storm', name:'Storm (Double Pass)', cat:'passing',
+    eligibility:'closed', nextStatus:'open', durationMs:3800,
+    fieldPos:'Any (outside NRZ)', keyPlayer:'F1 = Passer',
+    notes:'Identity play. Hand-off to F1, fake rush, F1 throws deep to M1. Sets up Lightning & Thunder.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-2,.21],[45,-3,.40]],
+        action:{type:'handoff',target:'F1',t:.21}},
+      {role:'F1',gender:'female',start:[38,-2],
+        route:[[38,-2,0],[42,-1,.15],[44,0,.30],[44,1.5,.50]],
+        action:{type:'throw',target:'M1',t:.50,arc:.18}},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[22,5,.15],[18,12,.35],[20,20,.60],[25,28,.87]],
+        catchT:.87},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,3,.15],[70,8,.35],[65,12,.55]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[62,-1],
+        route:[[62,-1,0],[70,2,.2],[78,4,.4],[85,5,.6]],
+        catchT:null}
+    ]
+  },
+  /* 2. Lightning */
+  {
+    id:'lightning', name:'Lightning', cat:'rushing',
+    eligibility:'closed', nextStatus:'open', durationMs:3100,
+    fieldPos:'Outside NRZ, need 5-8 yds', keyPlayer:'F1 = Rusher',
+    notes:'F1 outside rush. The real run that makes Thunder and Storm credible.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[44,-2,.26]],
+        action:{type:'handoff',target:'F1',t:.26}},
+      {role:'F1',gender:'female',start:[40,-2],
+        route:[[40,-2,0],[43,-1,.12],[46,0,.22],[50,2,.30],[58,5,.50],[68,8,.65],[75,10,.80]],
+        action:{type:'rush',t:.26}},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[20,5,.2],[15,10,.5]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[78,4,.2],[82,8,.5]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[62,-1],
+        route:[[62,-1,0],[58,1,.15],[55,3,.3]],
+        catchT:null}
+    ]
+  },
+  /* 3. Thunder */
+  {
+    id:'thunder', name:'Thunder', cat:'passing',
+    eligibility:'open', nextStatus:'open', durationMs:4150,
+    fieldPos:'After running Lightning', keyPlayer:'F1 = Decoy, QB passes',
+    notes:'Fake hand-off to F1 (defense bites on rush), QB passes deep. Throw to F2 to stay Open.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[46,-2,.22],[46,-3,.40]],
+        action:{type:'throw',target:'F2',t:.69,arc:.2}},
+      {role:'F1',gender:'female',start:[40,-2],
+        route:[[40,-2,0],[43,-1,.12],[46,0,.22],[52,3,.35],[58,6,.5]],
+        action:{type:'rush',t:.22}},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[20,5,.15],[15,12,.35],[18,20,.55]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[68,5,.2],[60,10,.4],[55,15,.6]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[62,-1],
+        route:[[62,-1,0],[65,3,.15],[68,8,.30],[65,15,.55],[60,22,.88]],
+        catchT:.88}
+    ]
+  },
+  /* 4. Screen Queen */
+  {
+    id:'screen-queen', name:'Screen Queen', cat:'nrz',
+    eligibility:'closed', nextStatus:'open', durationMs:3150,
+    fieldPos:'No-Run Zones', keyPlayer:'F1 = Receiver (screen)',
+    notes:'All receivers go deep, F1 leaks to flat. Quick pass functions like a run in NRZ.',
+    scrimmageYd:29,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.20],[46,-2,.48]],
+        action:{type:'throw',target:'F1',t:.48,arc:.05}},
+      {role:'F1',gender:'female',start:[38,-1],
+        route:[[38,-1,0],[38,0,.1],[35,1,.2],[30,2,.30],[25,3,.52],[25,6,.65],[30,9,.80]],
+        catchT:.52},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[20,6,.2],[15,14,.5],[15,20,.8]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,6,.2],[78,14,.5]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[62,-1],
+        route:[[62,-1,0],[65,5,.2],[68,12,.5]],
+        catchT:null}
+    ]
+  },
+  /* 5. Flood Right — FIX 5: target F2, F2 catchT=0.86, M2 catchT=null */
+  {
+    id:'flood-right', name:'Flood Right', cat:'nrz',
+    eligibility:'open', nextStatus:'open', durationMs:3550,
+    fieldPos:'No-Run Zones, need chunk yds', keyPlayer:'QB reads high-to-low',
+    notes:'3-level flood to the right. Overloads one side of the 22-yard-wide field. Throw to F2 to stay Open.',
+    scrimmageYd:29,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[55,-1,.15],[60,-2,.40]],
+        action:{type:'throw',target:'F2',t:.71,arc:.15}},
+      {role:'F1',gender:'female',start:[60,0],
+        route:[[60,0,0],[65,3,.15],[70,5,.3],[75,5,.5]],
+        catchT:null},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[30,3,.15],[40,6,.3],[55,8,.5],[65,9,.7]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,5,.15],[78,10,.3],[75,16,.5]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[55,-1],
+        route:[[55,-1,0],[60,2,.15],[68,5,.30],[75,8,.55],[80,10,.86]],
+        catchT:.86}
+    ]
+  },
+  /* 6. Jet Sweep Fake — includes pre-snap motion */
+  {
+    id:'jet-sweep', name:'Jet Sweep Fake', cat:'motion',
+    eligibility:'closed', nextStatus:'open', durationMs:3400,
+    fieldPos:'Any', keyPlayer:'F2 = Motion, F1 = Receiver',
+    notes:'F2 motions across. Fake hand-off to F2, real pass to F1 on crossing route.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.20],[46,-2,.45]],
+        action:{type:'throw',target:'F1',t:.76,arc:.12}},
+      {role:'F1',gender:'female',start:[20,0.5],
+        route:[[20,0.5,0],[25,3,.15],[35,6,.35],[50,8,.60],[60,10,.85]],
+        catchT:.85},
+      {role:'M1',gender:'male',start:[35,0],
+        route:[[35,0,0],[30,5,.2],[25,12,.4],[22,18,.7]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,4,.2],[78,10,.5]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[80,-3],
+        route:[[80,-3,0],[65,-2,.08],[50,-1,.15],[42,0,.20],[38,1,.30],[35,3,.45]],
+        action:{type:'rush',t:.20}}
+    ]
+  },
+  /* 7. Stack Release */
+  {
+    id:'stack-release', name:'Stack Release', cat:'nrz',
+    eligibility:'open', nextStatus:'open', durationMs:1900,
+    fieldPos:'Red Zone (near end zone)', keyPlayer:'QB reads split',
+    notes:'Red zone stacked receivers split to opposite end zone corners. Throw to F1 to stay Open.',
+    scrimmageYd:56,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.20],[45,-2,.50]],
+        action:{type:'throw',target:'F1',t:.71,arc:.1}},
+      {role:'F1',gender:'female',start:[62,0],
+        route:[[62,0,0],[65,2,.10],[70,4,.25],[78,6,.55],[82,8,.84]],
+        catchT:.84},
+      {role:'M1',gender:'male',start:[60,-0.5],
+        route:[[60,-0.5,0],[58,2,.1],[50,5,.25],[40,7,.4],[25,9,.6]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[30,0.5],
+        route:[[30,0.5,0],[25,5,.2],[20,10,.5]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[38,-1],
+        route:[[38,-1,0],[35,2,.15],[30,5,.35],[28,7,.5]],
+        catchT:null}
+    ]
+  },
+  /* 8. Orbit — includes pre-snap motion */
+  {
+    id:'orbit', name:'Orbit', cat:'motion',
+    eligibility:'closed', nextStatus:'open', durationMs:4700,
+    fieldPos:'Any (outside NRZ)', keyPlayer:'F1 or F2 = Rusher/Passer',
+    notes:'Triple-option look. Both females as rush threats. Confuses man coverage.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[45,-2,.30]],
+        action:{type:'handoff',target:'F1',t:.47}},
+      {role:'F1',gender:'female',start:[60,-2],
+        route:[[60,-2,0],[55,-1,.08],[50,0,.15],[48,0,.25],[45,1,.35],[40,3,.47],[35,6,.60],[30,10,.80]],
+        action:{type:'rush',t:.47}},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[22,4,.2],[18,10,.4],[15,16,.7]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,3,.15],[78,8,.4]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[30,-3],
+        route:[[30,-3,0],[35,-2,.05],[42,-1,.1],[48,0,.15],[52,1,.25],[58,3,.4],[65,6,.6]],
+        action:{type:'rush',t:.15}}
+    ]
+  },
+  /* 9. Boomerang */
+  {
+    id:'boomerang', name:'Boomerang', cat:'passing',
+    eligibility:'closed', nextStatus:'open', durationMs:3800,
+    fieldPos:'Backed up, need surprise', keyPlayer:'F2 = Receiver/Runner',
+    notes:'QB fakes hand-off to F1 going left, hands off to F2 going right. F2 has rush or throw option.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[45,-1,.12],[48,0,.21],[52,-1,.30]],
+        action:{type:'handoff',target:'F2',t:.39}},
+      {role:'F1',gender:'female',start:[40,-2],
+        route:[[40,-2,0],[35,-1,.1],[30,0,.21],[25,2,.35],[20,5,.5]],
+        action:{type:'rush',t:.21}},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[20,5,.2],[15,12,.5]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,5,.2],[78,12,.5]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[62,-2],
+        route:[[62,-2,0],[58,-1,.10],[54,0,.20],[55,0,.28],[58,1,.39],[65,4,.50],[72,7,.65],[78,10,.80]],
+        action:{type:'rush',t:.39}}
+    ]
+  },
+  /* 10. Mismatch Motion — FIX 4: nextStatus='closed' (male-to-male) */
+  {
+    id:'mismatch', name:'Mismatch Motion', cat:'motion',
+    eligibility:'open', nextStatus:'closed', durationMs:4150,
+    fieldPos:'Any', keyPlayer:'F2 = Motion diagnostic',
+    notes:'Motion F2 pre-snap to diagnose man vs zone. If defender follows = man. Adjust the read.',
+    scrimmageYd:12,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.20],[46,-2,.45]],
+        action:{type:'throw',target:'M1',t:.73,arc:.18}},
+      {role:'F1',gender:'female',start:[25,0.5],
+        route:[[25,0.5,0],[22,4,.15],[18,10,.35],[15,18,.6]],
+        catchT:null},
+      {role:'M1',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[70,3,.10],[65,7,.30],[55,12,.50],[50,18,.88]],
+        catchT:.88},
+      {role:'M2',gender:'male',start:[35,0],
+        route:[[35,0,0],[30,5,.2],[28,10,.4],[30,15,.6]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[80,-3],
+        route:[[80,-3,0],[65,-2,.06],[50,-1.5,.12],[40,-1,.18],[35,0,.22],[30,2,.3],[25,5,.45]],
+        catchT:null}
+    ]
+  },
+  /* 11. Rollout Choice */
+  {
+    id:'rollout', name:'Rollout Choice', cat:'nrz',
+    eligibility:'open', nextStatus:'open', durationMs:2900,
+    fieldPos:'Red Zone', keyPlayer:'QB rollout read',
+    notes:'QB rolls right. Reads F2 in corner vs M1 across the back of the end zone.',
+    scrimmageYd:56,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[55,0,.1],[60,-1,.2],[65,-1,.35],[68,0,.50]],
+        action:{type:'throw',target:'F2',t:.77,arc:.08}},
+      {role:'F1',gender:'female',start:[30,0.5],
+        route:[[30,0.5,0],[25,3,.15],[20,6,.3],[18,9,.5]],
+        catchT:null},
+      {role:'M1',gender:'male',start:[40,0],
+        route:[[40,0,0],[35,3,.15],[30,6,.3],[40,8,.45],[55,10,.6],[70,10,.75]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[72,0.5],
+        route:[[72,0.5,0],[75,3,.15],[80,5,.3]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[65,-1],
+        route:[[65,-1,0],[70,2,.15],[75,5,.35],[80,8,.60],[82,10,.90]],
+        catchT:.90}
+    ]
+  },
+  /* ===== 2025 LEGACY PLAYS (digitized from hand-drawn diagrams) ===== */
+  /* 12. Out — High-low on flat defender with out-cuts at 7yd and 12yd */
+  {
+    id:'out', name:'Out', cat:'passing',
+    eligibility:'closed', nextStatus:'open', durationMs:2800,
+    fieldPos:'Any', keyPlayer:'F1 = Primary (7yd out)',
+    notes:'High-low read on flat defender. F1 runs 7yd out-cut, M1 runs 12yd deep out. Quick game.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.20],[46,-2,.50]],
+        action:{type:'throw',target:'F1',t:.50,arc:.08}},
+      {role:'F1',gender:'female',start:[68,0.5],
+        route:[[68,0.5,0],[66,2,.12],[64,5,.28],[64,7,.40],[68,7,.50],[76,7,.65],[84,7,.82]],
+        catchT:.78},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[23,3,.12],[20,7,.30],[18,11,.52],[15,12,.60],[10,12,.75],[5,12,.90]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[82,0.5],
+        route:[[82,0.5,0],[84,5,.15],[86,12,.38],[88,18,.62]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[38,-1],
+        route:[[38,-1,0],[36,1,.15],[34,3,.30],[34,3,.50]],
+        catchT:null}
+    ]
+  },
+  /* 13. Levels — Three-level depth progression, read high to low */
+  {
+    id:'levels', name:'Levels', cat:'passing',
+    eligibility:'closed', nextStatus:'open', durationMs:3200,
+    fieldPos:'Any', keyPlayer:'F1 = Mid-level (10yd cross)',
+    notes:'Three-level read. M1 deep corner (15yd), F1 crossing (10yd), F2 short outlet (3yd). Read high to low.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.18],[45,-2,.45]],
+        action:{type:'throw',target:'F1',t:.55,arc:.12}},
+      {role:'F1',gender:'female',start:[65,0.5],
+        route:[[65,0.5,0],[62,3,.12],[58,6,.28],[52,8,.40],[45,10,.55],[38,10,.68],[32,10,.82]],
+        catchT:.80},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[22,5,.12],[18,10,.30],[15,14,.50],[18,17,.68],[22,20,.88]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[78,0.5],
+        route:[[78,0.5,0],[80,4,.15],[82,8,.32],[80,12,.52]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[40,-1],
+        route:[[40,-1,0],[38,1,.12],[35,3,.25],[35,3,.50]],
+        catchT:null}
+    ]
+  },
+  /* 14. Fades — Vertical stretch, fade routes up both sidelines */
+  {
+    id:'fades', name:'Fades', cat:'passing',
+    eligibility:'open', nextStatus:'open', durationMs:3800,
+    fieldPos:'Outside NRZ', keyPlayer:'QB reads F1 vs M1 fades',
+    notes:'Vertical stretch. F1 right fade, M1 left fade up both sidelines. F2 short outlet. Throw to F1 to stay Open.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[45,-2,.40]],
+        action:{type:'throw',target:'F1',t:.52,arc:.22}},
+      {role:'F1',gender:'female',start:[78,0.5],
+        route:[[78,0.5,0],[80,2,.08],[82,5,.18],[84,8,.28],[86,11,.40],[88,14,.52],[90,17,.68],[91,20,.82]],
+        catchT:.82},
+      {role:'M1',gender:'male',start:[22,0.5],
+        route:[[22,0.5,0],[20,2,.08],[18,5,.18],[15,8,.28],[12,12,.40],[10,16,.55],[8,20,.72],[7,24,.90]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[60,0.5],
+        route:[[60,0.5,0],[58,3,.12],[55,7,.28],[52,10,.45]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[40,-1],
+        route:[[40,-1,0],[38,1,.12],[35,3,.25],[33,5,.40],[33,5,.55]],
+        catchT:null}
+    ]
+  },
+  /* 15. Scissors — Two receivers cross paths from same side */
+  {
+    id:'scissors', name:'Scissors', cat:'passing',
+    eligibility:'closed', nextStatus:'open', durationMs:3400,
+    fieldPos:'Any', keyPlayer:'F1 = Corner route',
+    notes:'F1 and M2 cross paths from the right side. F1 breaks corner, M2 breaks post. Natural rub confuses man coverage.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.18],[46,-2,.45]],
+        action:{type:'throw',target:'F1',t:.58,arc:.15}},
+      {role:'F1',gender:'female',start:[62,0.5],
+        route:[[62,0.5,0],[60,3,.10],[58,6,.22],[56,9,.35],[60,12,.48],[68,14,.62],[78,16,.78]],
+        catchT:.82},
+      {role:'M1',gender:'male',start:[25,0.5],
+        route:[[25,0.5,0],[22,5,.15],[18,10,.35],[15,15,.58]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[65,-0.5],
+        route:[[65,-0.5,0],[62,3,.10],[58,6,.22],[55,9,.35],[48,12,.48],[40,14,.62],[32,16,.78]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[35,-1],
+        route:[[35,-1,0],[33,1,.12],[30,3,.25],[30,3,.50]],
+        catchT:null}
+    ]
+  },
+  /* 16. Wheel — F1 runs flat then wheels up the sideline */
+  {
+    id:'wheel', name:'Wheel', cat:'passing',
+    eligibility:'open', nextStatus:'open', durationMs:3800,
+    fieldPos:'Outside NRZ', keyPlayer:'F1 = Wheel route',
+    notes:'F1 starts in flat then wheels up sideline. High-value route that exploits LB/DB handoff confusion. M1 clears deep opposite.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[45,-2,.42]],
+        action:{type:'throw',target:'F1',t:.58,arc:.18}},
+      {role:'F1',gender:'female',start:[25,-2],
+        route:[[25,-2,0],[22,0,.08],[18,1,.15],[14,2,.22],[10,3,.30],[8,5,.38],[7,8,.48],[7,11,.58],[8,14,.68],[10,17,.80],[12,19,.90]],
+        catchT:.85},
+      {role:'M1',gender:'male',start:[80,0.5],
+        route:[[80,0.5,0],[82,5,.12],[84,10,.28],[86,16,.50],[88,22,.75]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[55,0.5],
+        route:[[55,0.5,0],[52,3,.12],[48,6,.28],[42,8,.45]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[38,-1],
+        route:[[38,-1,0],[35,1,.12],[32,3,.25],[30,5,.40]],
+        catchT:null}
+    ]
+  },
+  /* 17. Trips — Trips left formation with F2 motion pre-snap */
+  {
+    id:'trips', name:'Trips', cat:'motion',
+    eligibility:'closed', nextStatus:'open', durationMs:3000,
+    fieldPos:'Any', keyPlayer:'F1 = Quick slant from trips',
+    notes:'Trips left formation. F2 motions in pre-snap, gets set. Quick slant to F1 from bunch for Closed completion.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.18],[46,-2,.45]],
+        action:{type:'throw',target:'F1',t:.50,arc:.08}},
+      {role:'F1',gender:'female',start:[28,0.5],
+        route:[[28,0.5,0],[30,2,.10],[34,4,.22],[40,6,.35],[48,8,.52],[55,9,.68]],
+        catchT:.72},
+      {role:'M1',gender:'male',start:[30,-0.5],
+        route:[[30,-0.5,0],[28,4,.12],[25,10,.32],[22,16,.58]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[32,1.5],
+        route:[[32,1.5,0],[30,4,.12],[28,8,.28],[26,12,.48]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[80,-3],
+        route:[[80,-3,0],[65,-2,.05],[50,-1.5,.10],[38,-1,.15],[30,0,.22],[28,2,.30],[25,5,.45]],
+        catchT:null}
+    ]
+  },
+  /* 18. Motion Hand-off — F2 motions across, receives hand-off, rushes */
+  {
+    id:'motion-handoff', name:'Motion Hand-off', cat:'motion',
+    eligibility:'closed', nextStatus:'open', durationMs:3200,
+    fieldPos:'Outside NRZ', keyPlayer:'F2 = Motion ball carrier',
+    notes:'F2 motions across formation, receives hand-off from QB, rushes outside. Others run clearing routes. 2025 legacy.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[45,-2,.30],[42,-3,.45]],
+        action:{type:'handoff',target:'F2',t:.28}},
+      {role:'F1',gender:'female',start:[30,0.5],
+        route:[[30,0.5,0],[28,3,.12],[25,7,.28],[22,12,.52]],
+        catchT:null},
+      {role:'M1',gender:'male',start:[35,1],
+        route:[[35,1,0],[32,5,.12],[28,10,.30],[25,16,.55],[22,20,.78]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[65,0.5],
+        route:[[65,0.5,0],[68,4,.15],[72,8,.32],[75,12,.52]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[80,-3],
+        route:[[80,-3,0],[68,-2,.06],[56,-1,.12],[48,0,.18],[44,0,.22],[40,1,.28],[35,3,.38],[30,6,.50],[25,10,.65],[20,14,.82]],
+        action:{type:'rush',t:.28}}
+    ]
+  },
+  /* 19. Motion Keep — Fake to motion F2, QB throws deep to M1 */
+  {
+    id:'motion-keep', name:'Motion Keep', cat:'motion',
+    eligibility:'open', nextStatus:'closed', durationMs:3400,
+    fieldPos:'Any', keyPlayer:'QB = Fake + throw to M1',
+    notes:'Same pre-snap motion as Motion Hand-off. QB fakes hand-off to F2, keeps ball and throws deep to M1. Complement play.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.15],[46,-2,.30],[44,-3,.50]],
+        action:{type:'throw',target:'M1',t:.55,arc:.18}},
+      {role:'F1',gender:'female',start:[30,0.5],
+        route:[[30,0.5,0],[28,2,.12],[25,4,.25],[25,4,.50]],
+        catchT:null},
+      {role:'M1',gender:'male',start:[35,1],
+        route:[[35,1,0],[32,5,.12],[28,10,.28],[25,14,.42],[28,17,.58],[35,20,.72],[42,22,.88]],
+        catchT:.88},
+      {role:'M2',gender:'male',start:[65,0.5],
+        route:[[65,0.5,0],[68,4,.15],[72,8,.32],[75,12,.52]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[80,-3],
+        route:[[80,-3,0],[68,-2,.06],[56,-1,.12],[48,0,.18],[44,0,.22],[40,1,.28],[38,2,.35],[36,4,.45]],
+        catchT:null}
+    ]
+  },
+  /* 20. Motion Slants — Bunch left with motion, quick slants post-snap */
+  {
+    id:'motion-slants', name:'Motion Slants', cat:'motion',
+    eligibility:'closed', nextStatus:'open', durationMs:2600,
+    fieldPos:'Any', keyPlayer:'F1 = Slant from bunch',
+    notes:'Bunch left with F2 motion pre-snap. Two quick slants post-snap. F1 is primary Closed target for fast completion.',
+    scrimmageYd:20,
+    players:[
+      {role:'QB',gender:'male',start:[50,0],
+        route:[[50,0,0],[48,-1,.18],[46,-2,.45]],
+        action:{type:'throw',target:'F1',t:.50,arc:.08}},
+      {role:'F1',gender:'female',start:[30,0.5],
+        route:[[30,0.5,0],[33,2,.10],[38,4,.22],[44,6,.38],[52,8,.55],[58,9,.72]],
+        catchT:.75},
+      {role:'M1',gender:'male',start:[25,1.5],
+        route:[[25,1.5,0],[22,5,.12],[18,10,.28],[15,16,.50],[12,22,.78]],
+        catchT:null},
+      {role:'M2',gender:'male',start:[32,-0.5],
+        route:[[32,-0.5,0],[35,2,.10],[40,4,.22],[48,6,.38],[55,8,.55]],
+        catchT:null},
+      {role:'F2',gender:'female',start:[80,-3],
+        route:[[80,-3,0],[65,-2,.05],[50,-1.5,.10],[40,-1,.15],[34,0,.20],[30,1,.28],[28,3,.40]],
+        catchT:null}
+    ]
+  }
+];
+
+const CATEGORIES = ['All','Pass','Rush','Motion','NRZ'];
+const CAT_MAP = {passing:'Pass',rushing:'Rush',motion:'Motion',nrz:'NRZ'};
+
+/* ========== QUICK SHEET DATA ========== */
+const SEQUENCES = [
+  { label:'Opening Drive (Closed start)', plays:['storm','thunder','fades'] },
+  { label:'Crossing Midfield',            plays:['out','thunder','wheel'] },
+  { label:'Scoring (Red Zone)',            plays:['screen-queen','stack-release','rollout'] }
+];
+const PAT_GUIDE = [
+  { sit:'Default / ahead',     call:'Out or Motion Slants',   note:'1-pt (5yd), safe Closed' },
+  { sit:'Trailing by 2, 5, 8+', call:'Storm or Levels',       note:'2-pt (12yd), Closed-eligible' },
+  { sit:'Score is 22 or 26',   call:'Storm (double pass)',     note:'2-pt to reach 24 or 28 (game over)' }
+];
+const GOTO_PLAYS = ['storm','out','levels','screen-queen','lightning','jet-sweep','wheel','scissors'];
+
+/* ========== S3: STATE ========== */
+let currentPlay = PLAYS[0];
+let animState = 'idle'; // idle|playing|paused
+let animT = 0;
+let animSpeed = 1;
+let lastTS = null;
+let selectedPlayer = null;
+let dpr = 1;
+let fieldW = 0, fieldH = 0;
+let canvasOffX = 0, canvasOffY = 0;
+let bgCtx, playCtx;
+let activeCategory = 'All';
+let rafId = null;
+let quickSheetMode = false;
+
+/* FIX 7: Route cache for performance */
+let routeCache = [];
+
+/* ========== S4: FIELD RENDERER ========== */
+function yToCanvas(yd){ return (yd/FIELD.total)*fieldH; }
+function xToCanvas(pct){ return (pct/100)*fieldW; }
+
+function playerToCanvas(p, routeT){
+  const scY = currentPlay.scrimmageYd;
+  let pos;
+  if(routeT <= 0 || !p.route || p.route.length < 2){
+    pos = {x: p.start[0], yOff: p.start[1]};
+  } else {
+    pos = interpolateRoute(p.route, routeT);
+  }
+  return {
+    x: xToCanvas(pos.x),
+    y: yToCanvas(scY) + yToCanvas(pos.yOff || pos.y || 0)
+  };
+}
+
+function interpolateRoute(route, t){
+  if(t <= 0) return {x:route[0][0], yOff:route[0][1]};
+  if(t >= 1) return {x:route[route.length-1][0], yOff:route[route.length-1][1]};
+  let i = 0;
+  while(i < route.length-1 && route[i+1][2] < t) i++;
+  if(i >= route.length-1) return {x:route[route.length-1][0], yOff:route[route.length-1][1]};
+  const a = route[i], b = route[i+1];
+  const segT = (t - a[2]) / (b[2] - a[2]);
+  const s = segT * segT * (3 - 2 * segT);
+  return {
+    x: a[0] + (b[0]-a[0]) * s,
+    yOff: a[1] + (b[1]-a[1]) * s
+  };
+}
+
+/* FIX 7: Pre-compute route points for all players */
+function buildRouteCache(){
+  const play = currentPlay;
+  if(!play) { routeCache = []; return; }
+  routeCache = play.players.map(p => {
+    if(!p.route || p.route.length < 2) return [];
+    const pts = [];
+    for(let s = 0; s <= 1; s += 0.005){
+      const pos = interpolateRoute(p.route, s);
+      pts.push({
+        x: xToCanvas(pos.x),
+        y: yToCanvas(play.scrimmageYd) + yToCanvas(pos.yOff),
+        t: s
+      });
+    }
+    return pts;
+  });
+}
+
+function resizeCanvases(){
+  const vp = document.getElementById('fieldVP');
+  const vw = vp.clientWidth - 24;
+  const vh = vp.clientHeight - 24;
+  dpr = window.devicePixelRatio || 2;
+  const aspect = FIELD.width / FIELD.total;
+  if(vw/vh > aspect){ fieldH = vh; fieldW = fieldH * aspect; }
+  else { fieldW = vw; fieldH = fieldW / aspect; }
+
+  canvasOffX = (vp.clientWidth - fieldW)/2;
+  canvasOffY = (vp.clientHeight - fieldH)/2;
+
+  ['bgCanvas','playCanvas'].forEach(id=>{
+    const c = document.getElementById(id);
+    c.width = fieldW * dpr; c.height = fieldH * dpr;
+    c.style.width = fieldW+'px'; c.style.height = fieldH+'px';
+    c.style.left = canvasOffX+'px'; c.style.top = canvasOffY+'px';
+  });
+  bgCtx = document.getElementById('bgCanvas').getContext('2d');
+  playCtx = document.getElementById('playCanvas').getContext('2d');
+  bgCtx.setTransform(dpr,0,0,dpr,0,0);
+
+  /* FIX 7: rebuild cache on resize since canvas coords change */
+  buildRouteCache();
+  drawFieldBG();
+  drawPlayFrame(animT);
+}
+
+function drawFieldBG(){
+  const ctx = bgCtx;
+  ctx.clearRect(0,0,fieldW,fieldH);
+  // Turf
+  ctx.fillStyle='#2D8C3C';
+  ctx.fillRect(0,0,fieldW,fieldH);
+  // Stripes
+  ctx.fillStyle='#267332';
+  for(let yd=0;yd<FIELD.total;yd+=10){
+    ctx.fillRect(0,yToCanvas(yd),fieldW,yToCanvas(5));
+  }
+  // End zones
+  ctx.fillStyle='#1A3A5C';
+  ctx.fillRect(0,0,fieldW,yToCanvas(FIELD.ez));
+  ctx.fillStyle='#8C1A1A';
+  ctx.fillRect(0,yToCanvas(FIELD.ez+FIELD.play),fieldW,yToCanvas(FIELD.ez));
+  // EZ text
+  ctx.font=`bold ${Math.max(12,fieldW*.08)}px -apple-system,sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,255,255,.12)';
+  ctx.fillText('HOME',fieldW/2,yToCanvas(FIELD.ez/2));
+  ctx.fillText('AWAY',fieldW/2,yToCanvas(FIELD.ez+FIELD.play+FIELD.ez/2));
+  // NRZ
+  ctx.fillStyle='rgba(255,200,0,.08)';
+  NRZ_ZONES.forEach(z=>{ctx.fillRect(0,yToCanvas(z.start),fieldW,yToCanvas(z.end-z.start))});
+  ctx.strokeStyle='rgba(255,200,0,.35)';ctx.lineWidth=1;ctx.setLineDash([5,4]);
+  NRZ_ZONES.forEach(z=>{ctx.strokeRect(1,yToCanvas(z.start),fieldW-2,yToCanvas(z.end-z.start))});
+  ctx.setLineDash([]);
+  ctx.font=`bold ${Math.max(7,fieldW*.03)}px -apple-system,sans-serif`;
+  ctx.fillStyle='rgba(255,200,0,.3)';ctx.textAlign='center';ctx.textBaseline='middle';
+  NRZ_ZONES.forEach(z=>{ctx.fillText('NO RUN',fieldW/2,yToCanvas((z.start+z.end)/2))});
+  // Goal lines
+  ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2;
+  [FIELD.ez, FIELD.ez+FIELD.play].forEach(yd=>{
+    ctx.beginPath();ctx.moveTo(0,yToCanvas(yd));ctx.lineTo(fieldW,yToCanvas(yd));ctx.stroke();
+  });
+  // Midfield
+  ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,yToCanvas(YARD_MID));ctx.lineTo(fieldW,yToCanvas(YARD_MID));ctx.stroke();
+  // 5yd markers
+  ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;
+  for(let yd=FIELD.ez+5;yd<FIELD.ez+FIELD.play;yd+=5){
+    if(yd===YARD_MID)continue;
+    ctx.beginPath();ctx.moveTo(fieldW*.1,yToCanvas(yd));ctx.lineTo(fieldW*.9,yToCanvas(yd));ctx.stroke();
+  }
+  // Yard labels
+  ctx.font=`600 ${Math.max(7,fieldW*.028)}px -apple-system,sans-serif`;
+  ctx.fillStyle='rgba(255,255,255,.25)';ctx.textBaseline='middle';
+  [{yd:17,t:'10'},{yd:22,t:'15'},{yd:27,t:'20'},{yd:YARD_MID,t:'MID'},{yd:41,t:'20'},{yd:46,t:'15'},{yd:51,t:'10'}].forEach(l=>{
+    ctx.textAlign='left';ctx.fillText(l.t,3,yToCanvas(l.yd));
+    ctx.textAlign='right';ctx.fillText(l.t,fieldW-3,yToCanvas(l.yd));
+  });
+  // Border
+  ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;
+  ctx.strokeRect(0,0,fieldW,fieldH);
+}
+
+/* ========== S5: PLAY FRAME RENDERER ========== */
+function drawPlayFrame(t){
+  const ctx = playCtx;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,fieldW,fieldH);
+  const play = currentPlay;
+  if(!play)return;
+  const scY = yToCanvas(play.scrimmageYd);
+  const r = Math.max(10, fieldW * 0.04);
+
+  // Scrimmage line
+  ctx.strokeStyle='#00D4FF';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.globalAlpha=.7;
+  ctx.beginPath();ctx.moveTo(0,scY);ctx.lineTo(fieldW,scY);ctx.stroke();
+  ctx.setLineDash([]);ctx.globalAlpha=1;
+
+  // 7yd rush line
+  const rushY = yToCanvas(play.scrimmageYd - 7);
+  ctx.strokeStyle='rgba(239,68,68,.3)';ctx.lineWidth=1;ctx.setLineDash([4,5]);
+  ctx.beginPath();ctx.moveTo(0,rushY);ctx.lineTo(fieldW,rushY);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='600 7px -apple-system,sans-serif';ctx.fillStyle='rgba(239,68,68,.4)';
+  ctx.textAlign='right';ctx.fillText('7-YD RUSH',fieldW-4,rushY-3);
+
+  // Compute all player positions
+  const positions = play.players.map(p=>playerToCanvas(p,t));
+
+  /* FIX 7: Draw route trails from cached points */
+  play.players.forEach((p,i)=>{
+    if(!p.route||p.route.length<2)return;
+    const cached = routeCache[i];
+    if(!cached || cached.length < 2) return;
+    const isSelected = selectedPlayer === p.role;
+
+    // Find last index to draw up to current time t
+    let endIdx = 0;
+    for(let j = 0; j < cached.length; j++){
+      if(cached[j].t <= Math.min(t,1)) endIdx = j;
+      else break;
+    }
+
+    if(endIdx > 0){
+      ctx.beginPath();
+      ctx.strokeStyle = isSelected ? '#FACC15' : '#F59E0B';
+      ctx.lineWidth = isSelected ? 3 : 2;
+      ctx.globalAlpha = isSelected ? 0.9 : 0.4;
+      ctx.moveTo(cached[0].x, cached[0].y);
+      for(let j = 1; j <= endIdx; j++) ctx.lineTo(cached[j].x, cached[j].y);
+      ctx.stroke();
+
+      // Arrowhead at leading edge of route trail
+      if(endIdx >= 4){
+        const tip = cached[endIdx];
+        const prev = cached[endIdx - 4];
+        const angle = Math.atan2(tip.y - prev.y, tip.x - prev.x);
+        const aLen = r * 0.85;
+        const aWid = r * 0.40;
+        ctx.save();
+        ctx.translate(tip.x, tip.y);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(aLen, 0);
+        ctx.lineTo(-aLen * 0.3, aWid);
+        ctx.lineTo(-aLen * 0.3, -aWid);
+        ctx.closePath();
+        ctx.fillStyle = isSelected ? '#FACC15' : '#F59E0B';
+        ctx.globalAlpha = isSelected ? 0.95 : 0.65;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Draw faint full route if selected
+    if(isSelected){
+      ctx.beginPath();ctx.globalAlpha=.2;ctx.strokeStyle='#FACC15';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+      ctx.moveTo(cached[0].x, cached[0].y);
+      for(let j = 1; j < cached.length; j++) ctx.lineTo(cached[j].x, cached[j].y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.globalAlpha=1;
+  });
+
+  // Draw pass arc if applicable
+  const thrower = play.players.find(p=>p.action&&p.action.type==='throw');
+  if(thrower && thrower.action.target){
+    const receiver = play.players.find(p=>p.role===thrower.action.target);
+    if(receiver && t >= (thrower.action.t || 0)){
+      const throwPos = playerToCanvas(thrower, thrower.action.t);
+      const catchTime = receiver.catchT || .6;
+      const recvPos = playerToCanvas(receiver, catchTime);
+      ctx.beginPath();ctx.strokeStyle='#EF4444';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.globalAlpha=.6;
+      const mx=(throwPos.x+recvPos.x)/2;
+      const my=Math.min(throwPos.y,recvPos.y) - (thrower.action.arc||.15)*fieldH*.3;
+      ctx.moveTo(throwPos.x,throwPos.y);ctx.quadraticCurveTo(mx,my,recvPos.x,recvPos.y);ctx.stroke();
+      ctx.setLineDash([]);ctx.globalAlpha=1;
+
+      // Ball in flight
+      if(t >= thrower.action.t && t <= catchTime){
+        const bt = (t - thrower.action.t)/(catchTime - thrower.action.t);
+        const bs = bt*bt*(3-2*bt);
+        const bx = throwPos.x + (recvPos.x-throwPos.x)*bs;
+        const by_lin = throwPos.y + (recvPos.y-throwPos.y)*bs;
+        const arc_h = (thrower.action.arc||.15)*fieldH*.3;
+        const by = by_lin - Math.sin(bt*Math.PI)*arc_h;
+        ctx.beginPath();ctx.fillStyle='#92400E';
+        ctx.ellipse(bx,by,5,3.5,0,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#FFF';ctx.lineWidth=.5;ctx.stroke();
+      }
+    }
+  }
+
+  // Hand-off indicator
+  const handoffer = play.players.find(p=>p.action&&p.action.type==='handoff');
+  if(handoffer && handoffer.action.target && t >= (handoffer.action.t*.5) && t <= handoffer.action.t + .05){
+    const giver = playerToCanvas(handoffer, handoffer.action.t);
+    const recv = play.players.find(p=>p.role===handoffer.action.target);
+    if(recv){
+      const recvPos = playerToCanvas(recv, handoffer.action.t);
+      ctx.beginPath();ctx.strokeStyle='#FACC15';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.globalAlpha=.6;
+      ctx.moveTo(giver.x,giver.y);ctx.lineTo(recvPos.x,recvPos.y);ctx.stroke();
+      ctx.setLineDash([]);ctx.globalAlpha=1;
+    }
+  }
+
+  // Draw players
+  play.players.forEach((p,i)=>{
+    const pos = positions[i];
+    const isMale = p.gender==='male';
+    const isSelected2 = selectedPlayer === p.role;
+    // Shadow
+    ctx.beginPath();ctx.fillStyle='rgba(0,0,0,.25)';
+    ctx.arc(pos.x+1,pos.y+2,r,0,Math.PI*2);ctx.fill();
+    // Circle
+    ctx.beginPath();
+    ctx.fillStyle = isMale ? '#3B82F6' : '#F472B6';
+    ctx.arc(pos.x,pos.y,r,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle = isMale ? '#1D4ED8' : '#DB2777';
+    ctx.lineWidth=2.5;ctx.stroke();
+    // Label
+    ctx.font=`bold ${Math.max(8,r*.65)}px -apple-system,sans-serif`;
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.role,pos.x,pos.y);
+    // Selection ring
+    if(isSelected2){
+      ctx.beginPath();ctx.strokeStyle='#FACC15';ctx.lineWidth=3;
+      ctx.setLineDash([4,3]);
+      ctx.arc(pos.x,pos.y,r+5,0,Math.PI*2);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  });
+
+  /* FIX 6: update time display every frame */
+  const elapsed = (t * currentPlay.durationMs / 1000).toFixed(1);
+  const total = (currentPlay.durationMs / 1000).toFixed(1);
+  document.getElementById('timeDisplay').textContent = elapsed + 's / ' + total + 's';
+}
+
+/* ========== S6: ANIMATION ENGINE ========== */
+function startAnim(){
+  if(animState==='playing')return;
+  if(animT>=1) animT=0;
+  animState='playing';lastTS=null;
+  document.getElementById('btnPlay').innerHTML='&#10074;&#10074;';
+  rafId = requestAnimationFrame(tick);
+}
+function pauseAnim(){
+  animState='paused';
+  document.getElementById('btnPlay').innerHTML='&#9654;';
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+}
+
+/* FIX 2: tick uses currentPlay.durationMs instead of hardcoded value */
+function tick(ts){
+  if(animState!=='playing'){return;}
+  if(!lastTS)lastTS=ts;
+  const dur = currentPlay.durationMs;
+  const dt = ((ts-lastTS)/dur)*animSpeed;
+  lastTS=ts;
+  animT = Math.min(1, animT+dt);
+  drawPlayFrame(animT);
+  updateProgress();
+  if(animT>=1){
+    animState='idle';
+    document.getElementById('btnPlay').innerHTML='&#8634;';
+    return;
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function updateProgress(){
+  document.getElementById('progressFill').style.width = (animT*100)+'%';
+  document.getElementById('progressHandle').style.left = (animT*100)+'%';
+}
+
+/* ========== S7: UI CONTROLLERS ========== */
+function buildDrawer(){
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = CATEGORIES.map(c=>`<div class="tab${c===activeCategory?' active':''}" data-cat="${c}">${c}</div>`).join('');
+  tabsEl.querySelectorAll('.tab').forEach(el=>{
+    el.addEventListener('click',()=>{
+      activeCategory = el.dataset.cat;
+      tabsEl.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      el.classList.add('active');
+      renderPlayList();
+    });
+  });
+  renderPlayList();
+
+  document.getElementById('btnQS').addEventListener('click',()=>{
+    quickSheetMode = !quickSheetMode;
+    const btn = document.getElementById('btnQS');
+    btn.textContent = quickSheetMode ? 'LIST' : 'QS';
+    btn.style.color = quickSheetMode ? 'var(--accent)' : '';
+    btn.style.borderColor = quickSheetMode ? 'var(--accent)' : '';
+    document.getElementById('tabs').style.display = quickSheetMode ? 'none' : '';
+    document.getElementById('playList').style.display = quickSheetMode ? 'none' : '';
+    const qs = document.getElementById('quickSheet');
+    qs.style.display = quickSheetMode ? 'flex' : 'none';
+    if(quickSheetMode) renderQuickSheet();
+  });
+}
+
+function renderPlayList(){
+  const list = document.getElementById('playList');
+  const filtered = activeCategory==='All' ? PLAYS : PLAYS.filter(p=>CAT_MAP[p.cat]===activeCategory);
+  list.innerHTML = filtered.map(p=>`
+    <div class="play-card${p.id===currentPlay.id?' active':''}" data-id="${p.id}">
+      <div class="pn">${p.name}</div>
+      <div class="pm">
+        <span class="badge ${p.eligibility==='closed'?'b-closed':'b-open'}">${p.eligibility}</span>
+        <span class="badge b-${p.cat==='passing'?'pass':p.cat==='rushing'?'rush':p.cat==='motion'?'motion':'nrz'}">${CAT_MAP[p.cat]}</span>
+      </div>
+      <div class="pd">${p.notes.substring(0,80)}${p.notes.length>80?'...':''}</div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.play-card').forEach(el=>{
+    el.addEventListener('pointerdown',()=>{
+      const play = PLAYS.find(p=>p.id===el.dataset.id);
+      if(play) selectPlay(play);
+    });
+  });
+}
+
+function renderQuickSheet(){
+  document.getElementById('qsSequences').innerHTML = SEQUENCES.map(seq=>{
+    const cards = seq.plays.map((pid,i)=>{
+      const play = PLAYS.find(p=>p.id===pid);
+      if(!play) return '';
+      const isActive = currentPlay.id === pid;
+      return `<div class="qs-strip-card${isActive?' active':''}" data-id="${pid}">
+        <div class="qsc-num">${i+1}</div>
+        <div class="qsc-name">${play.name}</div>
+      </div>`;
+    }).join('');
+    return `<div class="qs-seq"><div class="qs-seq-label">${seq.label}</div><div class="qs-strip">${cards}</div></div>`;
+  }).join('');
+
+  document.getElementById('qsGoTo').innerHTML = GOTO_PLAYS.map(pid=>{
+    const play = PLAYS.find(p=>p.id===pid);
+    if(!play) return '';
+    const isActive = currentPlay.id === pid;
+    const catCls = `b-${play.cat==='passing'?'pass':play.cat==='rushing'?'rush':play.cat==='motion'?'motion':'nrz'}`;
+    return `<div class="qs-goto-card${isActive?' active':''}" data-id="${pid}">
+      <div class="qg-name">${play.name}</div>
+      <div class="qg-meta">
+        <span class="badge ${play.eligibility==='closed'?'b-closed':'b-open'}">${play.eligibility}</span>
+        <span class="badge ${catCls}">${CAT_MAP[play.cat]}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('qsPAT').innerHTML = PAT_GUIDE.map(row=>
+    `<div class="qs-pat-row">
+      <span class="qs-pat-dist">${row.sit}</span>
+      <span class="qs-pat-rec">${row.call}</span>
+      <span class="qs-pat-note">${row.note}</span>
+    </div>`
+  ).join('');
+
+  document.getElementById('quickSheet').querySelectorAll('[data-id]').forEach(el=>{
+    el.addEventListener('pointerdown',()=>{
+      const play = PLAYS.find(p=>p.id===el.dataset.id);
+      if(play) selectPlay(play);
+    });
+  });
+}
+
+/* FIX 9: restructured selectPlay — single drawPlayFrame call at end */
+function selectPlay(play){
+  currentPlay = play;
+  selectedPlayer = null;
+  pauseAnim();
+  animT = 0;
+  updateProgress();
+  buildRouteCache();
+  renderPlayList();
+  updatePlayInfo();
+  updateStratBar();
+  drawFieldBG();
+  drawPlayFrame(0);
+  document.getElementById('btnPlay').innerHTML='&#9654;';
+  if(quickSheetMode) renderQuickSheet();
+}
+
+function updatePlayInfo(){
+  const p = currentPlay;
+  document.getElementById('piName').textContent = p.name;
+  document.getElementById('piStatus').innerHTML = `<span class="badge ${p.eligibility==='closed'?'b-closed':'b-open'}">${p.eligibility}</span>`;
+  document.getElementById('piToggle').innerHTML = `<span class="badge ${p.eligibility==='closed'?'b-closed':'b-open'}" style="font-size:8px">${p.eligibility.toUpperCase()}</span> <span style="color:var(--text3);margin:0 3px">&rarr;</span> <span class="badge ${p.nextStatus==='open'?'b-open':'b-closed'}" style="font-size:8px">${p.nextStatus.toUpperCase()}</span>`;
+  document.getElementById('piKey').innerHTML = `<span style="font-weight:600;color:${p.keyPlayer.startsWith('F')?'var(--female)':'var(--text1)'}">${p.keyPlayer}</span>`;
+  document.getElementById('piNotes').textContent = p.notes;
+}
+
+function updateStratBar(){
+  const p = currentPlay;
+  document.getElementById('sbStatus').innerHTML = `<span class="badge ${p.eligibility==='closed'?'b-closed':'b-open'}">${p.eligibility}</span>`;
+  document.getElementById('sbToggle').innerHTML = `<span class="badge ${p.eligibility==='closed'?'b-closed':'b-open'}" style="font-size:8px">${p.eligibility.toUpperCase()}</span> <span style="color:var(--text3)">&rarr;</span> <span class="badge ${p.nextStatus==='open'?'b-open':'b-closed'}" style="font-size:8px">${p.nextStatus.toUpperCase()}</span>`;
+  document.getElementById('sbField').textContent = p.fieldPos;
+  document.getElementById('sbKey').style.color = p.keyPlayer.startsWith('F')?'var(--female)':'var(--text1)';
+  document.getElementById('sbKey').textContent = p.keyPlayer;
+  document.getElementById('sbNotes').textContent = p.notes;
+}
+
+function showTooltip(player, pos){
+  const tt = document.getElementById('tooltip');
+  document.getElementById('ttRole').textContent = player.role;
+  document.getElementById('ttGender').textContent = player.gender === 'male' ? 'Male Player' : 'Female Player';
+  let actionText = '';
+  if(player.action){
+    if(player.action.type==='throw') actionText = 'Throws to ' + player.action.target;
+    else if(player.action.type==='handoff') actionText = 'Hands off to ' + player.action.target;
+    else if(player.action.type==='rush') actionText = 'Ball carrier (rush)';
+  } else if(player.catchT){
+    actionText = 'Primary receiver';
+  } else {
+    actionText = 'Route runner / decoy';
+  }
+  document.getElementById('ttAction').textContent = actionText;
+  tt.classList.add('show');
+  const vpRect = document.getElementById('fieldVP').getBoundingClientRect();
+  let tx = canvasOffX + pos.x + 20;
+  let ty = canvasOffY + pos.y - 30;
+  if(tx + 180 > vpRect.width) tx = canvasOffX + pos.x - 190;
+  if(ty < 10) ty = canvasOffY + pos.y + 20;
+  tt.style.left = tx + 'px';
+  tt.style.top = ty + 'px';
+}
+function hideTooltip(){
+  document.getElementById('tooltip').classList.remove('show');
+}
+
+/* ========== S8: TOUCH/CLICK INTERACTIONS ========== */
+function initInteractions(){
+  const canvas = document.getElementById('playCanvas');
+
+  canvas.addEventListener('pointerdown', (e)=>{
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left);
+    const cy = (e.clientY - rect.top);
+
+    let hit = null;
+    const positions = currentPlay.players.map(p=>playerToCanvas(p,animT));
+    const r = Math.max(10, fieldW * 0.04);
+
+    for(let i = 0; i < positions.length; i++){
+      const dx = cx - positions[i].x;
+      const dy = cy - positions[i].y;
+      if(Math.sqrt(dx*dx+dy*dy) < r + 10){
+        hit = currentPlay.players[i];
+        break;
+      }
+    }
+
+    if(hit){
+      if(selectedPlayer === hit.role){
+        selectedPlayer = null;
+        hideTooltip();
+      } else {
+        selectedPlayer = hit.role;
+        const pos = positions[currentPlay.players.indexOf(hit)];
+        showTooltip(hit, pos);
+      }
+    } else {
+      selectedPlayer = null;
+      hideTooltip();
+    }
+    drawPlayFrame(animT);
+  });
+
+  // Transport controls
+  document.getElementById('btnPlay').addEventListener('click',()=>{
+    if(animState==='playing') pauseAnim();
+    else startAnim();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    pauseAnim();
+    animT=0;
+    updateProgress();
+    drawPlayFrame(0);
+    document.getElementById('btnPlay').innerHTML='&#9654;';
+  });
+  document.getElementById('btnStepBack').addEventListener('click',()=>{
+    pauseAnim();
+    animT = Math.max(0, animT - 0.03);
+    updateProgress();drawPlayFrame(animT);
+  });
+  document.getElementById('btnStepFwd').addEventListener('click',()=>{
+    pauseAnim();
+    animT = Math.min(1, animT + 0.03);
+    updateProgress();drawPlayFrame(animT);
+  });
+
+  // Progress bar scrubbing
+  const progressEl = document.getElementById('progress');
+  let scrubbing = false;
+  function scrub(e){
+    const rect = progressEl.getBoundingClientRect();
+    animT = Math.max(0, Math.min(1, (e.clientX - rect.left)/rect.width));
+    updateProgress();drawPlayFrame(animT);
+  }
+  progressEl.addEventListener('pointerdown',(e)=>{scrubbing=true;progressEl.setPointerCapture(e.pointerId);pauseAnim();scrub(e)});
+  progressEl.addEventListener('pointermove',(e)=>{if(scrubbing)scrub(e)});
+  progressEl.addEventListener('pointerup',(e)=>{scrubbing=false;progressEl.releasePointerCapture(e.pointerId)});
+
+  // Speed buttons
+  document.querySelectorAll('.sbtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      animSpeed = parseFloat(btn.dataset.speed);
+      document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown',(e)=>{
+    if(e.code==='Space'){e.preventDefault();if(animState==='playing')pauseAnim();else startAnim();}
+    if(e.code==='ArrowRight'){e.preventDefault();pauseAnim();animT=Math.min(1,animT+.03);updateProgress();drawPlayFrame(animT);}
+    if(e.code==='ArrowLeft'){e.preventDefault();pauseAnim();animT=Math.max(0,animT-.03);updateProgress();drawPlayFrame(animT);}
+    if(e.code==='KeyR'){pauseAnim();animT=0;updateProgress();drawPlayFrame(0);document.getElementById('btnPlay').innerHTML='&#9654;';}
+    if(e.code==='ArrowDown'){e.preventDefault();const idx=PLAYS.indexOf(currentPlay);if(idx<PLAYS.length-1)selectPlay(PLAYS[idx+1]);}
+    if(e.code==='ArrowUp'){e.preventDefault();const idx=PLAYS.indexOf(currentPlay);if(idx>0)selectPlay(PLAYS[idx-1]);}
+  });
+}
+
+/* ========== S9: SWIPE NAVIGATION ========== */
+function initSwipe(){
+  const canvas = document.getElementById('playCanvas');
+  let startX=0, startY=0, startTime=0;
+  canvas.addEventListener('touchstart',(e)=>{
+    if(e.touches.length!==1)return;
+    startX=e.touches[0].clientX;startY=e.touches[0].clientY;startTime=Date.now();
+  },{passive:true});
+  canvas.addEventListener('touchend',(e)=>{
+    const dt=Date.now()-startTime;
+    if(dt>300)return;
+    const touch=e.changedTouches[0];
+    const dx=touch.clientX-startX;
+    const dy=touch.clientY-startY;
+    if(Math.abs(dx)<50)return;
+    if(Math.abs(dx)>Math.abs(dy)){
+      const idx=PLAYS.indexOf(currentPlay);
+      if(dx<0 && idx<PLAYS.length-1) selectPlay(PLAYS[idx+1]);
+      else if(dx>0 && idx>0) selectPlay(PLAYS[idx-1]);
+    }
+  },{passive:true});
+}
+
+/* ========== S10: INIT ========== */
+function init(){
+  resizeCanvases();
+  buildDrawer();
+  updatePlayInfo();
+  updateStratBar();
+  initInteractions();
+  initSwipe();
+  drawPlayFrame(0);
+
+  /* FIX 8: resize debounce */
+  let resizeTimer;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeCanvases, 150);
+  });
+}
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+else init();
+
+})();
+</script>
+</body>
+</html>
