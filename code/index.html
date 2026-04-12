@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0F172A">
+<meta name="apple-mobile-web-app-title" content="Playbook">
 <title>KCCC 2026 — Flag Football Playbook</title>
 <style>
 /* ========== RESET & BASE ========== */
@@ -34,7 +36,7 @@ body{
 }
 
 /* ========== LAYOUT ========== */
-.app{display:flex;height:100vh;width:100vw}
+.app{display:flex;height:100vh;width:100vw;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 
 /* ========== DRAWER ========== */
 .drawer{
@@ -123,6 +125,7 @@ body{
 .transport{
   height:56px;background:var(--bg2);border-top:1px solid var(--bg3);
   display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;
+  padding-bottom:env(safe-area-inset-bottom);
 }
 .tbtn{
   width:36px;height:36px;border-radius:6px;border:none;background:var(--bg3);
@@ -133,17 +136,17 @@ body{
 .tbtn:active{background:#526580}
 .tbtn.play-btn{width:44px;height:44px;background:var(--accent);border-radius:50%;font-size:18px}
 .tbtn.play-btn:hover{background:var(--accent-hover)}
-.progress{flex:1;height:6px;background:var(--bg3);border-radius:3px;cursor:pointer;position:relative;touch-action:none}
+.progress{flex:1;height:10px;background:var(--bg3);border-radius:5px;cursor:pointer;position:relative;touch-action:none}
 .progress-fill{height:100%;background:var(--accent);border-radius:3px;width:0%;transition:none}
 .progress-handle{
-  position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  position:absolute;top:50%;width:24px;height:24px;border-radius:50%;
   background:#fff;transform:translate(-50%,-50%);left:0%;cursor:grab;
   box-shadow:0 1px 4px rgba(0,0,0,.4);
 }
 .speed-grp{display:flex;gap:3px;flex-shrink:0}
 .sbtn{
-  padding:3px 8px;border-radius:3px;border:1px solid #475569;background:transparent;
-  color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;
+  padding:6px 10px;border-radius:3px;border:1px solid #475569;background:transparent;
+  color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;
 }
 .sbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .time-display{font-size:11px;font-weight:600;color:var(--text2);min-width:80px;text-align:center;font-variant-numeric:tabular-nums;flex-shrink:0}
@@ -155,16 +158,26 @@ body{
     width:100%;min-width:unset;max-height:38vh;
     border-right:none;border-bottom:1px solid var(--bg3);
   }
-  .play-list{max-height:calc(38vh - 80px)}
+  .play-list{max-height:calc(38vh - 90px)}
   .field-vp{min-height:35vh}
   .play-info{max-width:180px}
   .play-info .pi-name{font-size:13px}
   .legend{font-size:9px;padding:5px 8px}
-  .strat-bar{height:36px;font-size:10px;padding:0 8px;gap:8px}
-  .transport{height:48px;padding:0 8px;gap:6px}
-  .tbtn{width:30px;height:30px;font-size:12px}
-  .tbtn.play-btn{width:38px;height:38px;font-size:16px}
-  .time-display{font-size:9px!important;min-width:58px!important}
+  .strat-bar{height:38px;font-size:10px;padding:0 10px;gap:8px}
+  .transport{height:56px;padding:0 10px;gap:8px}
+  .tbtn{width:40px;height:40px;font-size:14px}
+  .tbtn.play-btn{width:48px;height:48px;font-size:18px}
+  .time-display{font-size:10px!important;min-width:62px!important}
+  .tab{padding:14px 2px;font-size:10px}
+  .badge{font-size:9px}
+  .play-card .pd{font-size:10px}
+  .qs-section-label{font-size:10px}
+  .qs-strip-card{padding:10px 6px}
+  .qs-strip-card .qsc-name{font-size:10px}
+  .qs-strip-card .qsc-num{font-size:9px}
+  .qs-goto-card{padding:10px 8px}
+  .qs-goto-card .qg-name{font-size:10px}
+  .qs-pat-row{padding:8px 0;font-size:10px}
 }
 
 /* ========== QUICK SHEET ========== */
@@ -200,8 +213,9 @@ body{
 .drawer-hdr{display:flex;align-items:flex-start;justify-content:space-between}
 .qs-btn{
   background:transparent;border:1px solid var(--bg3);border-radius:4px;
-  color:var(--text2);font-size:9px;font-weight:700;padding:3px 6px;
+  color:var(--text2);font-size:9px;font-weight:700;padding:6px 8px;
   cursor:pointer;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;flex-shrink:0;
+  min-width:36px;min-height:32px;display:flex;align-items:center;justify-content:center;
 }
 </style>
 </head>
