@@ -383,7 +383,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[62,-1],
         route:[[62,-1,0],[70,2,.2],[78,4,.4],[85,5,.6]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'M1',label:'Deep corner/post',windowStart:.35,windowEnd:.87,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 throws. M1 is the only read. If M1 covered, F1 tucks and rushes.'}]
   },
   /* 2. Lightning */
   {
@@ -408,7 +409,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[62,-1],
         route:[[62,-1,0],[58,1,.15],[55,3,.3]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Outside rush',windowStart:.26,windowEnd:.80,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 reads edge: soft = rush outside. Crashed = pull up and throw.'}]
   },
   /* 3. Thunder */
   {
@@ -433,7 +435,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[62,-1],
         route:[[62,-1,0],[65,3,.15],[68,8,.30],[65,15,.55],[60,22,.88]],
         catchT:.88}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F2',label:'Deep route',windowStart:.55,windowEnd:.88,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F2 deep is the target (stays Open). If safety covers F2, go to read 2.'},{readNumber:2,target:'M2',label:'Crossing underneath',windowStart:.40,windowEnd:.60,isPrimary:false,staysOpen:false,closedLegal:true,readKey:'M2 crossing is the check-down. Completing here flips to Closed.'}]
   },
   /* 4. Screen Queen */
   {
@@ -458,7 +461,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[62,-1],
         route:[[62,-1,0],[65,5,.2],[68,12,.5]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Flat screen',windowStart:.30,windowEnd:.52,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'Quick screen -- get the ball out fast to F1 in the flat.'}]
   },
   /* 5. Flood Right — FIX 5: target F2, F2 catchT=0.86, M2 catchT=null */
   {
@@ -483,7 +487,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[55,-1],
         route:[[55,-1,0],[60,2,.15],[68,5,.30],[75,8,.55],[80,10,.86]],
         catchT:.86}
-    ]
+    ],
+    reads:[{readNumber:1,target:'M2',label:'Deep route (high)',windowStart:.30,windowEnd:.50,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'M2 deep is the first look. If deep defender covers M2, go to read 2.'},{readNumber:2,target:'F2',label:'Intermediate (mid)',windowStart:.30,windowEnd:.86,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F2 intermediate stays Open. The designed target.'},{readNumber:3,target:'F1',label:'Short flat (low)',windowStart:.30,windowEnd:.50,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'F1 flat is the low check-down.'}]
   },
   /* 6. Jet Sweep Fake — includes pre-snap motion */
   {
@@ -508,7 +513,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[80,-3],
         route:[[80,-3,0],[65,-2,.08],[50,-1,.15],[42,0,.20],[38,1,.30],[35,3,.45]],
         action:{type:'rush',t:.20}}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Deep crossing route',windowStart:.60,windowEnd:.85,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'If defense flows with F2 motion, F1 crossing is wide open.'}]
   },
   /* 7. Stack Release */
   {
@@ -533,7 +539,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[38,-1],
         route:[[38,-1,0],[35,2,.15],[30,5,.35],[28,7,.5]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Right EZ corner',windowStart:.55,windowEnd:.84,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 right corner stays Open. If defender follows F1, go to read 2.'},{readNumber:2,target:'M1',label:'Left EZ corner',windowStart:.40,windowEnd:.60,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'M1 breaks left from the stack. Read which corner coverage vacates.'}]
   },
   /* 8. Orbit — includes pre-snap motion */
   {
@@ -558,7 +565,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[30,-3],
         route:[[30,-3,0],[35,-2,.03],[42,-1,.06],[48,0,.09],[52,1,.12],[52,1,.15],[55,2,.25],[58,3,.4],[65,6,.6]],
         action:{type:'rush',t:.15}}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Rush / throw / dump',windowStart:.47,windowEnd:.80,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 reads defense post-handoff: edge soft = rush. Deep open = throw M1. Pressure = dump F2.'}]
   },
   /* 9. Boomerang */
   {
@@ -583,7 +591,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[62,-2],
         route:[[62,-2,0],[58,-1,.10],[54,0,.20],[55,0,.28],[58,1,.39],[65,4,.50],[72,7,.65],[78,10,.80]],
         action:{type:'rush',t:.39}}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F2',label:'Rush right / throw option',windowStart:.39,windowEnd:.65,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F2 reads the right edge. Soft = rush. Coverage loose deep = throw to read 2.'},{readNumber:2,target:'M2',label:'Deep route',windowStart:.50,windowEnd:.80,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'M2 deep is the throw target if F2 decides to pass.'}]
   },
   /* 10. Mismatch Motion — FIX 4: nextStatus='closed' (male-to-male) */
   {
@@ -608,7 +617,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[80,-3],
         route:[[80,-3,0],[65,-2,.06],[50,-1.5,.12],[40,-1,.18],[35,0,.22],[30,2,.3],[25,5,.45]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'M1',label:'Deep crossing route',windowStart:.50,windowEnd:.88,isPrimary:true,staysOpen:false,closedLegal:true,readKey:'F2 motion diagnoses man vs zone. M1 deep cross is the target. Male-to-male flips Closed.'}]
   },
   /* 11. Rollout Choice */
   {
@@ -633,7 +643,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[65,-1],
         route:[[65,-1,0],[70,2,.15],[75,5,.35],[80,8,.60],[82,10,.90]],
         catchT:.90}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F2',label:'Corner route (right)',windowStart:.60,windowEnd:.90,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F2 corner stays Open. QB rolls right, reads F2 first.'},{readNumber:2,target:'M1',label:'Crossing back of EZ',windowStart:.45,windowEnd:.75,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'M1 crosses back of end zone. QB can scramble right (cannot cross LOS).'}]
   },
   /* ===== 2025 LEGACY PLAYS (digitized from hand-drawn diagrams) ===== */
   /* 12. Out — High-low on flat defender with out-cuts at 7yd and 12yd */
@@ -659,7 +670,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[38,-1],
         route:[[38,-1,0],[36,1,.15],[34,3,.30],[34,3,.50]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'7yd out-cut',windowStart:.40,windowEnd:.65,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'If flat defender sags, throw F1 out. If defender jumps F1, go to read 2.'},{readNumber:2,target:'M1',label:'12yd deep out',windowStart:.52,windowEnd:.75,isPrimary:false,staysOpen:true,closedLegal:false,readKey:'M1 deep out over the top. CAUTION: Only legal when run from Open status.'}]
   },
   /* 13. Levels — Three-level depth progression, read high to low */
   {
@@ -684,7 +696,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[40,-1],
         route:[[40,-1,0],[38,1,.12],[35,3,.25],[35,3,.50]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'M1',label:'Deep corner (15yd)',windowStart:.50,windowEnd:.68,isPrimary:false,staysOpen:false,closedLegal:false,readKey:'M1 deep corner is the big play but M-to-M flips Closed. ONLY LEGAL WHEN OPEN.'},{readNumber:2,target:'F1',label:'10yd crossing',windowStart:.40,windowEnd:.68,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 crossing is the safe Closed completion (flips Open).'},{readNumber:3,target:'F2',label:'3yd outlet',windowStart:.25,windowEnd:.50,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'F2 outlet is the emergency dump. Short, safe, stays Open.'}]
   },
   /* 14. Fades — Vertical stretch, fade routes up both sidelines */
   {
@@ -709,7 +722,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[40,-1],
         route:[[40,-1,0],[38,1,.12],[35,3,.25],[33,5,.40],[33,5,.55]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Right fade',windowStart:.40,windowEnd:.68,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 fade stays Open. If safety shades right, go to read 2.'},{readNumber:2,target:'M1',label:'Left fade',windowStart:.40,windowEnd:.72,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'M1 fade on opposite sideline. Whichever side the safety vacates is open.'},{readNumber:3,target:'F2',label:'Short outlet',windowStart:.25,windowEnd:.55,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'F2 outlet is the safety valve if both fades are covered.'}]
   },
   /* 15. Scissors — Two receivers cross paths from same side */
   {
@@ -734,7 +748,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[35,-1],
         route:[[35,-1,0],[33,1,.12],[30,3,.25],[30,3,.50]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Corner route',windowStart:.48,windowEnd:.78,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 corner is the Closed completion (flips Open). If defender switches, go to read 2.'},{readNumber:2,target:'M2',label:'Post route',windowStart:.48,windowEnd:.78,isPrimary:false,staysOpen:false,closedLegal:false,readKey:'M2 post comes open inside. CAUTION: Only legal when run from Open status.'}]
   },
   /* 16. Wheel — F1 runs flat then wheels up the sideline */
   {
@@ -759,7 +774,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[38,-1],
         route:[[38,-1,0],[35,1,.12],[32,3,.25],[30,5,.40]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Wheel route',windowStart:.48,windowEnd:.80,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'Wait for F1 to turn upfield. Throw after the break. If wheel jumped, go to read 2.'},{readNumber:2,target:'M2',label:'Curl/cross underneath',windowStart:.28,windowEnd:.45,isPrimary:false,staysOpen:true,closedLegal:true,readKey:'M2 underneath is the check-down.'}]
   },
   /* 17. Trips — Trips left formation with F2 motion pre-snap */
   {
@@ -784,7 +800,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[80,-3],
         route:[[80,-3,0],[65,-2,.05],[50,-1.5,.10],[38,-1,.15],[30,0,.22],[28,2,.30],[25,5,.45]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Quick slant from bunch',windowStart:.22,windowEnd:.52,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'Quick Closed completion. Bunch creates traffic that makes the slant hard to cover.'}]
   },
   /* 18. Motion Hand-off — F2 motions across, receives hand-off, rushes */
   {
@@ -809,7 +826,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[80,-3],
         route:[[80,-3,0],[68,-2,.06],[56,-1,.12],[48,0,.18],[44,0,.22],[40,1,.28],[35,3,.38],[30,6,.50],[25,10,.65],[20,14,.82]],
         action:{type:'rush',t:.28}}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F2',label:'Motion rush outside',windowStart:.28,windowEnd:.82,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'Get ball to F2 in motion. F2 rushes outside. If edge crashed, pull up and throw.'}]
   },
   /* 19. Motion Keep — Fake to motion F2, QB throws deep to M1 */
   {
@@ -834,7 +852,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[80,-3],
         route:[[80,-3,0],[68,-2,.06],[56,-1,.12],[48,0,.18],[44,0,.22],[40,1,.28],[38,2,.35],[36,4,.45]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'M1',label:'Deep corner/post',windowStart:.42,windowEnd:.88,isPrimary:true,staysOpen:false,closedLegal:true,readKey:'Fake to F2 sells the play. M1 deep is the only target. Deliberately flips Closed.'}]
   },
   /* 20. Motion Slants — Bunch left with motion, quick slants post-snap */
   {
@@ -859,7 +878,8 @@ const PLAYS = [
       {role:'F2',gender:'female',start:[80,-3],
         route:[[80,-3,0],[65,-2,.05],[50,-1.5,.10],[40,-1,.15],[34,0,.20],[30,1,.28],[28,3,.40]],
         catchT:null}
-    ]
+    ],
+    reads:[{readNumber:1,target:'F1',label:'Quick slant from bunch',windowStart:.22,windowEnd:.55,isPrimary:true,staysOpen:true,closedLegal:true,readKey:'F1 slant is the primary Closed completion. If F1 covered, go to read 2.'},{readNumber:2,target:'M2',label:'Parallel slant',windowStart:.22,windowEnd:.55,isPrimary:false,staysOpen:false,closedLegal:false,readKey:'M2 parallel slant from bunch. CAUTION: M-to-M stays Closed. Only legal when Open.'}]
   }
 ];
 
@@ -961,6 +981,7 @@ let activeCategory = 'All';
 let rafId = null;
 let quickSheetMode = false;
 let swipeInProgress = false;
+let readsMode = false;
 
 /* FIX 7: Route cache for performance */
 let routeCache = [];
