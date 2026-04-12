@@ -210,6 +210,35 @@ body{
 .qs-pat-dist{font-weight:700;color:var(--accent);min-width:28px;flex-shrink:0}
 .qs-pat-rec{flex:1;color:var(--text1)}
 .qs-pat-note{color:var(--text3);font-style:italic;font-size:8px;text-align:right;flex-shrink:0;max-width:80px}
+/* ========== RULES TAB ========== */
+.rules-search{
+  width:100%;padding:8px 10px;border:1px solid var(--bg3);border-radius:5px;
+  background:var(--bg1);color:var(--text1);font-size:11px;margin-bottom:6px;
+  outline:none;
+}
+.rules-search:focus{border-color:var(--accent)}
+.rules-search::placeholder{color:var(--text3)}
+.rule-card{
+  padding:8px 10px;border-radius:6px;cursor:pointer;margin-bottom:3px;
+  border:1px solid transparent;transition:background .15s;
+}
+.rule-card:hover{background:var(--bg3)}
+.rule-card.expanded{background:var(--bg3);border-color:var(--bg3)}
+.rule-card .rc-short{font-size:11px;font-weight:600;line-height:1.3}
+.rule-card .rc-cat{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-bottom:3px}
+.rule-card .rc-full{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.4;display:none}
+.rule-card.expanded .rc-full{display:block}
+.rule-card .rc-mistakes{font-size:10px;color:#FCA5A5;margin-top:4px;line-height:1.3}
+.rule-card .rc-tips{font-size:10px;color:#4ADE80;margin-top:4px;line-height:1.3}
+.ctx-rules{margin-top:6px;border-top:1px solid var(--bg3);padding-top:6px}
+.ctx-rules .ctx-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px}
+.ctx-rule-item{font-size:10px;color:var(--text2);padding:3px 0;line-height:1.3}
+.ctx-rule-item.warning{color:#FCA5A5}
+.toggle-warning{
+  background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);
+  border-radius:4px;padding:3px 6px;font-size:9px;font-weight:600;
+  color:#FCA5A5;margin-left:6px;
+}
 .drawer-hdr{display:flex;align-items:flex-start;justify-content:space-between}
 .qs-btn{
   background:transparent;border:1px solid var(--bg3);border-radius:4px;
@@ -237,6 +266,10 @@ body{
       <div class="qs-section-label" style="margin-top:10px">PAT DECISION</div>
       <div id="qsPAT"></div>
     </div>
+    <div id="rulesPanel" style="display:none;flex:1;overflow-y:auto;padding:8px 10px;flex-direction:column">
+      <input type="text" class="rules-search" id="rulesSearch" placeholder="Search rules...">
+      <div id="rulesList"></div>
+    </div>
   </div>
 
   <!-- MAIN -->
@@ -252,6 +285,7 @@ body{
         <div class="pi-row"><span class="pi-label">Toggle</span><span id="piToggle"></span></div>
         <div class="pi-row"><span class="pi-label">Key</span><span id="piKey"></span></div>
         <div class="pi-notes" id="piNotes"></div>
+        <div class="ctx-rules" id="ctxRules"></div>
       </div>
 
       <!-- Legend -->
@@ -276,6 +310,7 @@ body{
       <div class="si"><span class="sl">Toggle</span><span id="sbToggle"></span></div>
       <div class="si"><span class="sl">Field</span><span id="sbField" style="font-weight:600"></span></div>
       <div class="si"><span class="sl">Key</span><span id="sbKey" style="font-weight:600"></span></div>
+      <span id="sbWarning"></span>
       <div class="strat-notes" id="sbNotes"></div>
     </div>
 
@@ -827,6 +862,73 @@ const PLAYS = [
     ]
   }
 ];
+
+/* ========== RULES DATABASE ========== */
+const RULES_DB = [
+  {ruleId:'field-dimensions',category:'field',shortText:'Field is 54 yds long x 22 yds wide with 7-yd end zones',fullText:'Field dimensions: 54 yards long by 22 yards wide. End Zone: 7 yards deep.',relatedPlays:['all'],commonMistakes:['Forgetting the field is only 22 yards wide -- sideline routes have less room than expected'],situationalTips:['The narrow field favors flood concepts that overload one side']},
+  {ruleId:'nrz-locations',category:'field',shortText:'4 No-Run Zones: 5 yds each side of midfield + 5 yds before each end zone',fullText:'"No Running Zones" are located 5 yards before midfield and 5 yards before the end zone in each offensive direction.',relatedPlays:['screen-queen','flood-right','stack-release','rollout','lightning','motion-handoff'],commonMistakes:['Calling a rush play when LOS is in the NRZ','Thinking NRZ means you cannot pass -- passing is always legal'],situationalTips:['In NRZ, use Screen Queen or Flood Right instead of rushing plays']},
+  {ruleId:'downs-system',category:'field',shortText:'3 plays to cross midfield, then 3 plays to score',fullText:'The offensive team takes possession at their 5-yard line and has 3 plays to cross midfield. Once a team crosses midfield, they have 3 plays to score.',relatedPlays:['all'],commonMistakes:['Thinking you get 4 downs like regular football -- it is only 3'],situationalTips:['With only 3 plays, every play matters. Script your 3-play sequences in advance.']},
+  {ruleId:'possession-start',category:'field',shortText:'All possession changes start at the 5-yard line',fullText:'All possession changes, except interceptions, start on the offensive team\'s 5-yard line.',relatedPlays:['all'],commonMistakes:['Thinking you take over where the opponent was stopped'],situationalTips:['After any turnover on downs, the new offense starts at their own 5-yard line']},
+  {ruleId:'ball-on-ground',category:'field',shortText:'Ball must be on the ground at snap; bad snap = dead ball',fullText:'Ball must be on the ground at the snap. Any incomplete snap shall result in a dead ball.',relatedPlays:['all'],commonMistakes:['Shotgun snap that bounces -- dead ball, replay the down'],situationalTips:['Practice direct snaps with ball on the ground']},
+  {ruleId:'scoring-values',category:'scoring',shortText:'TD=6, PAT from 5yd=1pt, PAT from 12yd=2pts, Safety=2pts',fullText:'Touchdown = 6 points. Extra Point: 1pt (5 yards out), 2pt (12 yards out). Safety = 2 points.',relatedPlays:['all'],commonMistakes:['Confusing PAT distances -- 1pt is from 5 yards, 2pt is from 12 yards'],situationalTips:['Default to 1pt PAT unless trailing by 2, 5, 8, or 9']},
+  {ruleId:'mercy-rule',category:'scoring',shortText:'Game ends at 28 points or 24 minutes, whichever comes first',fullText:'Games are played to 28 points or 24 minutes (two 12-minute halves), whichever comes first.',relatedPlays:['all'],commonMistakes:['Not tracking score -- game can end mid-drive at 28 points'],situationalTips:['At 22 or 26 points, go for 2 on the PAT to reach 28 and end it']},
+  {ruleId:'game-no-end-def-penalty',category:'scoring',shortText:'Game CANNOT end on a defensive penalty (unless offense declines)',fullText:'Games cannot end on a defensive penalty, unless the offense declines it.',relatedPlays:['all'],commonMistakes:['Thinking the game is over after the last play when a defensive penalty occurred'],situationalTips:['On the last play, take a deep shot -- if defense commits a penalty you get another play']},
+  {ruleId:'play-clock',category:'timing',shortText:'25 seconds to snap after ball spotted; 1 warning then penalty',fullText:'Each time the ball is spotted a team has 25 seconds to snap the ball. Teams will receive one warning before a delay of game penalty is enforced.',relatedPlays:['all'],commonMistakes:['Taking too long in the huddle -- you only get one free warning'],situationalTips:['When leading, use the full 25 seconds every snap to burn clock']},
+  {ruleId:'pass-clock',category:'timing',shortText:'QB has 7 seconds to throw; violation = dead ball, loss of down',fullText:'QB has a 7-second pass clock. If a pass is not thrown within 7 seconds, play is dead, loss of down, ball returns to LOS. Once the ball is handed off the 7-second rule is no longer in effect.',relatedPlays:['storm','thunder','fades','out','levels','scissors','wheel','flood-right','screen-queen','stack-release','rollout','jet-sweep','mismatch','motion-keep','trips','motion-slants','boomerang'],commonMistakes:['Holding the ball too long on Storm','Forgetting the 7-second clock stops after a hand-off'],situationalTips:['After a hand-off, the new ball carrier has unlimited time']},
+  {ruleId:'timeout',category:'timing',shortText:'1 timeout per team, 60 seconds, clock stops',fullText:'Each team has one 60-second timeout per game, in which the clock stops.',relatedPlays:['all'],commonMistakes:['Using the timeout too early'],situationalTips:['Save for trailing late, need to stop clock on your own possession']},
+  {ruleId:'forward-pass-beyond-los',category:'passing',shortText:'All passes must be forward and received beyond the LOS',fullText:'All passes must be forward and received beyond the line of scrimmage. Shovel passes are allowed but must be received beyond the LOS.',relatedPlays:['all'],commonMistakes:['Completing a pass behind the LOS -- offensive penalty','Confusing hand-offs (legal behind LOS) with passes (must be received beyond LOS)'],situationalTips:['Short passes near the LOS must be caught by a receiver who has crossed the LOS']},
+  {ruleId:'no-laterals',category:'passing',shortText:'No laterals or pitches; only direct hand-offs behind LOS',fullText:'Only direct hand-offs behind the line of scrimmage are legal. No laterals or pitches of any kind. Offense may use multiple hand-offs.',relatedPlays:['storm','lightning','orbit','boomerang','motion-handoff','jet-sweep'],commonMistakes:['Tossing or pitching the ball instead of directly handing it off'],situationalTips:['The hand-off must be a direct physical transfer, not a toss']},
+  {ruleId:'handoff-then-throw',category:'passing',shortText:'Hand-off receiver may throw if behind LOS; QB becomes eligible receiver',fullText:'The player who takes the hand-off can throw the ball as long as they do not pass the LOS. All players are eligible to receive passes including the QB after a hand-off.',relatedPlays:['storm','orbit','boomerang','lightning'],commonMistakes:['F1 crossing the LOS before throwing on Storm -- illegal forward pass','Forgetting the QB becomes eligible after handing off'],situationalTips:['On Storm, F1 must throw BEFORE her feet cross the LOS']},
+  {ruleId:'qb-cannot-run',category:'rushing',shortText:'QB CANNOT run the ball, even if female',fullText:'The quarterback CANNOT run the ball, even if the quarterback is a female.',relatedPlays:['all'],commonMistakes:['Female QB thinking she can scramble past LOS -- she cannot','QB rolling out past the LOS on Rollout Choice'],situationalTips:['QB can move behind the LOS (rollout, scramble) but cannot cross it with the ball']},
+  {ruleId:'male-no-rush',category:'rushing',shortText:'Males may NOT advance the ball across the LOS by running',fullText:'A male player may not advance the ball across the line of scrimmage.',relatedPlays:['all'],commonMistakes:['Males CAN receive passes beyond LOS and run after the catch. They cannot take a hand-off and rush across the LOS.'],situationalTips:['Males can run after a catch. They cannot rush (hand-off + run across LOS).']},
+  {ruleId:'female-only-rusher',category:'rushing',shortText:'Only females may rush (advance ball across LOS by running)',fullText:'A female player is the only player allowed to advance the ball across the line-of-scrimmage by rushing.',relatedPlays:['lightning','orbit','boomerang','motion-handoff'],commonMistakes:['Handing off to a male and expecting him to rush -- illegal'],situationalTips:['F1 and F2 are the only players who can take hand-offs and rush past the LOS']},
+  {ruleId:'rush-line',category:'rushing',shortText:'Defensive rushers must start 7 yds from LOS; all can rush after hand-off',fullText:'All players that rush the passer must be a minimum of 7 yards from the LOS when the ball is snapped. Once the ball has been handed off, the 7-yard rule is no longer in effect and all defenders are eligible to rush.',relatedPlays:['all'],commonMistakes:['Starting the rush from inside the 7-yard marker'],situationalTips:['After a hand-off, ALL defenders can rush freely -- no 7-yard rule']},
+  {ruleId:'one-motion',category:'motion',shortText:'Only 1 player in motion pre-snap; must not move toward LOS at snap',fullText:'Only one player is allowed in motion at a time before the snap, that player may not be moving towards the line of scrimmage at the time of the snap.',relatedPlays:['jet-sweep','orbit','trips','motion-handoff','motion-keep','mismatch','motion-slants'],commonMistakes:['Two players moving at the snap','Motion player moving toward LOS at snap -- illegal motion'],situationalTips:['Motion must be lateral or away from LOS at the moment of the snap']},
+  {ruleId:'spinning-allowed',category:'motion',shortText:'Ball carriers may spin; cannot leave feet (no diving/jumping)',fullText:'Spinning is allowed, but players cannot leave their feet to avoid a defensive player (no diving). Any player with possession cannot jump; ball spotted at the spot of the jump.',relatedPlays:['lightning','orbit','motion-handoff','boomerang'],commonMistakes:['Diving to avoid a flag pull -- spotted where you left your feet'],situationalTips:['Spin moves are a legal way to avoid flag pulls']},
+  {ruleId:'open-play',category:'open-closed',shortText:'Open: any player may pass to any player; female still only rusher',fullText:'In an open play, the offensive team may pass the ball from any player to any player without penalty. A female is still the only player allowed to rush across the LOS.',relatedPlays:['thunder','fades','wheel','flood-right','stack-release','rollout','mismatch','motion-keep'],commonMistakes:['Thinking Open means males can rush -- they still cannot'],situationalTips:['Open plays give maximum passing flexibility but rushing rules are unchanged']},
+  {ruleId:'closed-play',category:'open-closed',shortText:'Closed: female must be passer, receiver, or non-QB rusher',fullText:'In a closed play the offensive player must have a female involved in the transaction of the ball beyond the LOS. A female must be the passer, the receiver, or the non-QB rusher.',relatedPlays:['storm','lightning','screen-queen','jet-sweep','orbit','boomerang','out','levels','scissors','trips','motion-handoff','motion-slants'],commonMistakes:['Male QB throwing to male receiver on a Closed play -- ILLEGAL'],situationalTips:['On Closed plays, the female MUST be involved in the completion beyond LOS']},
+  {ruleId:'toggle-female',category:'open-closed',shortText:'Completed play with female involved -> next play OPEN',fullText:'If the previous play involves a female in a completed successful play (as passer, receiver, or rusher) then the next play is Open.',relatedPlays:['all'],commonMistakes:['Incomplete passes do not change the toggle'],situationalTips:['Target a female on every completion to maintain Open status']},
+  {ruleId:'toggle-male',category:'open-closed',shortText:'Completed male-to-male (no female) -> next play CLOSED',fullText:'If the previous play involves a male passer AND male receiver in a completed successful play then the next play is Closed.',relatedPlays:['mismatch','motion-keep'],commonMistakes:['Accidentally completing male-to-male when you wanted to stay Open'],situationalTips:['Mismatch Motion and Motion Keep deliberately flip to Closed']},
+  {ruleId:'toggle-unsuccessful',category:'open-closed',shortText:'Unsuccessful play (incomplete, sack) -> toggle stays the same',fullText:'If a play is unsuccessful (did not advance ball beyond LOS), the next play retains the same open/closed status.',relatedPlays:['all'],commonMistakes:['Thinking an incomplete pass changes the toggle -- it does not'],situationalTips:['A sack, incomplete pass, or pass-clock violation does NOT change Open/Closed']},
+  {ruleId:'toggle-def-penalty',category:'open-closed',shortText:'Accepted defensive penalty -> next play OPEN',fullText:'All defensive penalties will result in the next play being open.',relatedPlays:['all'],commonMistakes:['Forgetting to take advantage of the free Open play after a defensive penalty'],situationalTips:['After a defensive penalty, plan your best Open play']},
+  {ruleId:'toggle-off-penalty',category:'open-closed',shortText:'Offensive penalty -> toggle stays the same',fullText:'All offensive penalties will result in the following play being the same open/closed determination as the penalized play.',relatedPlays:['all'],commonMistakes:['Thinking an offensive penalty flips the toggle'],situationalTips:['If you commit an offensive penalty on a Closed play, you are still Closed']},
+  {ruleId:'toggle-new-possession',category:'open-closed',shortText:'Start of each new possession -> CLOSED',fullText:'Each new possession begins with Closed status (no previous female involvement to trigger Open).',relatedPlays:['all'],commonMistakes:['Assuming the first play of a drive is Open -- it is always Closed'],situationalTips:['Script your first play as a Closed-eligible play (Storm, Out, Trips)']},
+  {ruleId:'dead-ball',category:'dead-ball',shortText:'Dead: flag pulled, OOB, TD, interception, knee/hand/ball on ground, flag falls',fullText:'Play is dead when: flag pulled, ball carrier OOB, TD scored, interception (no returns), knee/hand/ball touches ground, flag falls off, receiver flag falls out (dead at catch point).',relatedPlays:['all'],commonMistakes:['Trying to return an interception -- ball is dead immediately','Ball hitting the ground = dead, no fumble recovery'],situationalTips:['There are NO fumbles. Ball is dead where it hits the ground.']},
+  {ruleId:'ball-spotted-belt',category:'dead-ball',shortText:'Ball spotted where the BELT is when flag pulled, not where ball is',fullText:'The ball is spotted where the ball carrier\'s belt is when the flag is pulled, not where the ball is. Ball and flags must break the plane for a 1st down and TD.',relatedPlays:['all'],commonMistakes:['Reaching the ball forward before flag pull -- does not matter, spot is at the belt'],situationalTips:['Extending the ball forward does NOT gain extra yardage']},
+  {ruleId:'one-foot-inbounds',category:'dead-ball',shortText:'1 foot in bounds required for a legal catch',fullText:'Players must have at least one foot in bounds when making a catch.',relatedPlays:['fades','wheel','out','stack-release','flood-right'],commonMistakes:['Catching near the sideline without a foot in'],situationalTips:['On a 22-yard-wide field, sideline catches are common -- drill one-foot-in']},
+  {ruleId:'no-contact',category:'penalties',shortText:'No contact allowed, NO BLOCKING of any kind',fullText:'No contact allowed. NO BLOCKING. No tackling, elbowing, cheap shots, blocking or any unsportsmanlike conduct.',relatedPlays:['all'],commonMistakes:['Setting a pick with body contact -- illegal','Blocking for the ball carrier -- not allowed'],situationalTips:['On Scissors and bunch plays, crossing paths is legal but contact is not']},
+  {ruleId:'flag-guarding',category:'penalties',shortText:'Flag guarding is an offensive penalty (arm movement to prevent flag pull)',fullText:'Flag guarding: any arm/hand movement by the ball carrier to prevent their flag from being pulled is an offensive penalty.',relatedPlays:['lightning','orbit','motion-handoff','boomerang'],commonMistakes:['Naturally swinging arms while running can be called flag guarding'],situationalTips:['Ball carriers must keep arms away from their flags when running']},
+  {ruleId:'half-distance',category:'penalties',shortText:'Within 10 yds of goal, penalty is half the distance to the goal',fullText:'Within 10 yards of goal, ball is placed half the distance to the goal.',relatedPlays:['all'],commonMistakes:['Expecting a full 10-yard penalty in the red zone'],situationalTips:['In the red zone, offensive penalties are less costly yardage-wise but still cost a down']},
+  {ruleId:'ot-standard',category:'overtime',shortText:'Standard OT: 1 play from 5-yd line; most yards wins',fullText:'Each team receives one play from the 5-yard line toward the opposite end zone. Most yards wins. Negative yardage is better than interception. Incomplete pass is the worst result.',relatedPlays:['all'],commonMistakes:['Incomplete pass is WORSE than an interception in OT','Throwing an interception is worse than negative yardage'],situationalTips:['In standard OT, prioritize yardage. An incomplete pass is the worst result.']},
+  {ruleId:'ot-championship',category:'overtime',shortText:'Championship OT: 3 plays from midfield, mandatory 2-pt conversion',fullText:'Each team gets 3 plays from midfield. If a team scores, they attempt a 2-pt conversion from the 12-yard mark. All extra point conversions in championship OT are 2 points.',relatedPlays:['all'],commonMistakes:['Going for 1-pt PAT in championship OT -- all are 2-pt from 12 yards'],situationalTips:['Plan a 3-play scoring sequence from midfield. First play is Closed.']}
+];
+
+const PENALTIES_DB = {
+  defensive:[
+    {name:'Offsides',yardage:10,downEffect:'Auto 1st down',toggleEffect:'Next play OPEN',description:'Defender crosses LOS before the snap'},
+    {name:'Interference',yardage:10,downEffect:'Auto 1st down',toggleEffect:'Next play OPEN',description:'Defender impedes receiver\'s ability to catch'},
+    {name:'Illegal Contact',yardage:10,downEffect:'Auto 1st down',toggleEffect:'Next play OPEN',description:'Holding, bump and run, blocking, jumping with contact'},
+    {name:'Illegal Flag Pull',yardage:10,downEffect:'Auto 1st down',toggleEffect:'Next play OPEN',description:'Pulling flag before receiver has the ball'},
+    {name:'Illegal Rushing',yardage:10,downEffect:'Auto 1st down',toggleEffect:'Next play OPEN',description:'Starting rush from inside the 7-yard marker'},
+    {name:'Unsportsmanlike Conduct',yardage:10,downEffect:'Auto 1st down',toggleEffect:'Next play OPEN',description:'Tackling, elbowing, cheap shots, blocking. May be ejected.'}
+  ],
+  offensive:[
+    {name:'Illegal Motion',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'More than 1 person moving at snap, false start, motion toward LOS'},
+    {name:'Illegal Forward Pass',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'Pass received behind the LOS'},
+    {name:'Flag Guarding',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'Ball carrier uses arm/hand to prevent flag pull'},
+    {name:'Jumping by Ball Carrier',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'Ball carrier leaves feet. Spotted at spot of jump.'},
+    {name:'Delay of Game',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'Failing to snap within 25 seconds after one warning'},
+    {name:'Offensive Pass Interference',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'Illegal pick play, receiver pushing defender'},
+    {name:'Unsportsmanlike Conduct',yardage:10,downEffect:'Loss of down',toggleEffect:'Toggle stays same',description:'Any unsportsmanlike behavior. May be ejected.'}
+  ],
+  notes:{
+    allDeclinable:'All penalties may be declined by the opposing team.',
+    halfDistance:'Within 10 yards of goal, penalty is half the distance.',
+    gameNoEnd:'Games cannot end on a defensive penalty unless offense declines.',
+    otDefPenalty:'In OT, defensive penalties give 10 yards plus option for an extra play.',
+    otOffPenalty:'In OT, offensive penalty = negative 10 yards and loss of down.'
+  }
+};
 
 const CATEGORIES = ['All','Pass','Rush','Motion','NRZ'];
 const CAT_MAP = {passing:'Pass',rushing:'Rush',motion:'Motion',nrz:'NRZ'};
