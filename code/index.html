@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0F172A">
 <meta name="apple-mobile-web-app-title" content="Playbook">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='36' fill='%230F172A'/><text x='90' y='115' text-anchor='middle' font-size='100' font-family='system-ui'>🏈</text></svg>">
 <title>KCCC 2026 — Flag Football Playbook</title>
 <style>
 /* ========== RESET & BASE ========== */
@@ -1331,7 +1333,8 @@ function buildRouteCache(){
 
 function resizeCanvases(){
   const vp = document.getElementById('fieldVP');
-  const pad = isMobile() ? 8 : 24;
+  const mobile = isMobile();
+  const pad = mobile ? 8 : 24;
   const vw = vp.clientWidth - pad;
   const vh = vp.clientHeight - pad;
   dpr = window.devicePixelRatio || 2;
@@ -1341,7 +1344,10 @@ function resizeCanvases(){
   else { fieldW = vw; fieldH = fieldW / aspect; }
 
   canvasOffX = (vp.clientWidth - fieldW)/2;
-  canvasOffY = (vp.clientHeight - fieldH)/2;
+  /* On mobile, pin canvas toward top so the scrimmage-line formation clears
+     the bottom-sheet peek handle (56px). Use minimal top padding instead of
+     centering vertically. */
+  canvasOffY = mobile ? Math.min(4, (vp.clientHeight - fieldH)/2) : (vp.clientHeight - fieldH)/2;
 
   ['bgCanvas','playCanvas'].forEach(id=>{
     const c = document.getElementById(id);
@@ -2451,6 +2457,9 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
 else init();
 
 })();
+</script>
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>

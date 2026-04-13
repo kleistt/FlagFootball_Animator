@@ -1,0 +1,22 @@
+{
+  "name": "KCCC 2026 Flag Football Playbook",
+  "short_name": "Playbook",
+  "description": "Interactive coaching app for KCCC 2026 Coed Flag Football",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%230F172A'/><text x='96' y='120' text-anchor='middle' font-size='100' font-family='system-ui'>🏈</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='64' fill='%230F172A'/><text x='256' y='320' text-anchor='middle' font-size='280' font-family='system-ui'>🏈</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
