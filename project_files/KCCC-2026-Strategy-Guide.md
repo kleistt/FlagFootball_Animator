@@ -11,7 +11,7 @@ Mid-America Sports Complex, Shawnee, KS
 | Item | Rule |
 |------|------|
 | **Format** | 5v5, minimum 2 women on field at all times |
-| **Field** | 54 yards long x 22 yards wide, 7-yard end zones |
+| **Field** | 54 yards long x 22 yards wide TOTAL (includes two 7-yd end zones; 40 yd play area) |
 | **Ball** | Intermediate (junior) size |
 | **Downs** | 3 plays to cross midfield, then 3 plays to score |
 | **QB running** | QB CANNOT run, even if female |
@@ -709,11 +709,11 @@ If you lose the toss and they take the ball:
 |  END    | NRZ |   RUN    | NRZ | NRZ |   RUN    | NRZ |  END    |
 |  ZONE   |     |   OK     |     |     |   OK     |     |  ZONE   |
 |         |     |          |     |     |          |     |         |
-|<---------  54 yards total between end zone front lines  -------->|
-|<--- Total field including end zones: 68 yards --->|
-                           ^
-                        MIDFIELD
-                     22 yards wide
+|<---------- 54 yards TOTAL (includes both end zones) ------------>|
+          |<----- 40 yards play area (goal-line to goal-line) --->|
+                                 ^
+                              MIDFIELD
+                            22 yards wide
 ```
 
 **No-Run Zones (NRZ):** 5 yards before each end zone + 5 yards on each side of midfield = 4 NRZ areas. In these zones, all plays must be passing plays (hand-offs behind LOS followed by a pass are legal).

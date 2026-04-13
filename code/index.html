@@ -11,10 +11,21 @@
 <style>
 /* ========== RESET & BASE ========== */
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;touch-action:none}
+html,body{
+  height:100vh;       /* fallback for iOS <15.4 / older browsers */
+  height:100dvh;      /* dynamic viewport height: excludes iOS address bar */
+  overflow:hidden;touch-action:none;overscroll-behavior:none;
+}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:var(--font-sans);
   background:#0F172A;color:#F8FAFC;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;user-select:none;
+}
+button,input{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input{-webkit-user-select:text;user-select:text}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 
 /* ========== CSS TOKENS ========== */
@@ -30,48 +41,82 @@ body{
   --selected:#FACC15;--ball:#92400E;
   --bg1:#0F172A;--bg2:#1E293B;--bg3:#334155;
   --text1:#F8FAFC;--text2:#94A3B8;--text3:#64748B;
-  --accent:#3B82F6;--accent-hover:#2563EB;
+  --accent:#3B82F6;--accent-hover:#2563EB;--accent-2:#FACC15;
   --badge-open-bg:#166534;--badge-open-fg:#4ADE80;
   --badge-closed-bg:#7F1D1D;--badge-closed-fg:#FCA5A5;
+  /* Athletic/condensed display stack: iOS-native first, progressive fallback. */
+  --font-display:"Avenir Next Condensed","HelveticaNeue-CondensedBold","Helvetica Neue Condensed",Oswald,Impact,"Arial Narrow Bold",sans-serif;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
 }
 
 /* ========== LAYOUT (mobile-first) ========== */
-.app{display:flex;flex-direction:column;height:100vh;width:100vw;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.app{
+  display:flex;flex-direction:column;
+  height:100vh;       /* fallback */
+  height:100dvh;      /* actual visible viewport on mobile browsers */
+  width:100vw;
+  padding-top:env(safe-area-inset-top);
+  padding-left:env(safe-area-inset-left);
+  padding-right:env(safe-area-inset-right);
+}
 
 /* ========== DRAWER ========== */
 .drawer{
   width:260px;min-width:260px;background:var(--bg2);
   border-right:1px solid var(--bg3);display:flex;flex-direction:column;
 }
-.drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--bg3)}
-.drawer-hdr h1{font-size:16px;font-weight:700;letter-spacing:-.02em}
-.drawer-hdr .sub{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
-.tabs{display:flex;border-bottom:1px solid var(--bg3)}
-.tab{
-  flex:1;padding:9px 2px;font-size:9px;font-weight:600;text-align:center;
-  text-transform:uppercase;letter-spacing:.04em;color:var(--text3);
-  cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;
-  min-height:44px;display:flex;align-items:center;justify-content:center;
+.drawer-hdr{
+  padding:12px 14px 10px;border-bottom:1px solid var(--bg3);
+  background:linear-gradient(180deg,#172033 0%,var(--bg2) 100%);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
 }
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.drawer-hdr h1{font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-stretch:condensed}
+.drawer-hdr h1::after{content:'';display:block;width:28px;height:2px;background:var(--accent);margin-top:5px;border-radius:2px}
+.drawer-hdr .sub{font-size:9px;color:var(--text3);margin-top:5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.tabs{display:flex;border-bottom:1px solid var(--bg3);background:var(--bg2)}
+.tab{
+  flex:1;padding:8px 2px;font-family:var(--font-display);font-size:11px;font-weight:700;text-align:center;
+  text-transform:uppercase;letter-spacing:.10em;color:var(--text3);
+  cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;
+  min-height:40px;display:flex;align-items:center;justify-content:center;
+}
+.tab.active{color:var(--text1);border-bottom-color:var(--accent)}
 .tab:hover{color:var(--text2)}
-.play-list{flex:1;overflow-y:auto;padding:6px}
+.play-list{flex:1;overflow-y:auto;padding:6px;-webkit-overflow-scrolling:touch}
 .play-card{
-  padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:3px;
-  transition:background .15s;border:1px solid transparent;
+  position:relative;
+  padding:9px 11px 9px 13px;border-radius:7px;cursor:pointer;margin-bottom:4px;
+  transition:background .12s,border-color .12s,transform .12s;border:1px solid transparent;
+  background:transparent;
 }
 .play-card:hover{background:var(--bg3)}
-.play-card.active{background:#1E3A5F;border-color:var(--accent)}
-.play-card .pn{font-size:13px;font-weight:600;margin-bottom:4px}
-.play-card .pm{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
-.badge{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.03em}
+.play-card.active{background:linear-gradient(180deg,#1E3A5F,#17304F);border-color:var(--accent);box-shadow:0 0 0 1px rgba(59,130,246,.25) inset}
+.play-card.active::before{
+  content:'';position:absolute;left:2px;top:8px;bottom:8px;width:3px;border-radius:2px;
+  background:var(--accent-2);box-shadow:0 0 8px rgba(250,204,21,.55);
+}
+.play-card .pn{
+  font-family:var(--font-display);font-size:15px;font-weight:700;
+  margin-bottom:4px;letter-spacing:.02em;line-height:1.1;text-transform:uppercase;
+  font-stretch:condensed;
+}
+.play-card .pm{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(-4px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+.play-card.entering{animation:cardIn .24s ease-out both}
+.badge{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;line-height:1.2}
 .b-open{background:var(--badge-open-bg);color:var(--badge-open-fg)}
 .b-closed{background:var(--badge-closed-bg);color:var(--badge-closed-fg)}
 .b-pass{background:#4C1D95;color:#C4B5FD}
 .b-rush{background:#78350F;color:#FCD34D}
 .b-motion{background:#164E63;color:#67E8F9}
 .b-nrz{background:#831843;color:#F9A8D4}
-.play-card .pd{font-size:10px;color:var(--text2);margin-top:5px;line-height:1.4}
+.play-card .pd{
+  font-size:10px;color:var(--text2);margin-top:5px;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 
 /* ========== MAIN ========== */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -80,14 +125,15 @@ body{
 
 /* ========== LEGEND ========== */
 .legend{
-  position:absolute;top:8px;right:8px;background:rgba(15,23,42,.85);
-  border:1px solid var(--bg3);border-radius:6px;padding:8px 12px;font-size:10px;
-  display:flex;flex-direction:column;gap:5px;z-index:5;pointer-events:none;
+  position:absolute;top:8px;right:8px;background:rgba(15,23,42,.82);
+  border:1px solid rgba(51,65,85,.8);border-radius:6px;padding:6px 10px;font-size:9.5px;
+  display:flex;flex-direction:column;gap:4px;z-index:5;pointer-events:none;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
 }
-.legend-item{display:flex;align-items:center;gap:7px}
-.lg-dot{width:10px;height:10px;border-radius:50%}
-.lg-line{width:16px;height:2.5px;border-radius:2px}
-.lg-dash{width:16px;height:0;border-top:2.5px dashed var(--pass-arc)}
+.legend-item{display:flex;align-items:center;gap:6px;color:var(--text2)}
+.lg-dot{width:9px;height:9px;border-radius:50%}
+.lg-line{width:14px;height:2.5px;border-radius:2px}
+.lg-dash{width:14px;height:0;border-top:2.5px dashed var(--pass-arc)}
 
 /* ========== PLAY INFO ========== */
 .play-info{
@@ -112,15 +158,23 @@ body{
 .tooltip .tt-gender{font-size:10px;color:var(--text2)}
 .tooltip .tt-action{font-size:10px;color:var(--route);margin-top:3px}
 
-/* ========== STRATEGY BAR ========== */
+/* ========== STRATEGY BAR (scoreboard strip) ========== */
 .strat-bar{
-  height:44px;background:var(--bg2);border-top:1px solid var(--bg3);
-  display:flex;align-items:center;padding:0 16px;gap:16px;font-size:11px;
+  height:46px;background:linear-gradient(180deg,#172033,var(--bg2));
+  border-top:1px solid var(--bg3);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  display:flex;align-items:center;padding:0 16px;gap:18px;font-size:11px;
   flex-shrink:0;
 }
-.si{display:flex;align-items:center;gap:5px}
-.sl{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-.strat-notes{flex:1;text-align:right;color:var(--text2);font-style:italic;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si{display:flex;align-items:center;gap:7px}
+.sl{font-family:var(--font-display);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.strat-notes{flex:1;text-align:right;color:var(--text2);font-style:italic;font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.01em}
+.ctx-chip{
+  display:none;align-items:center;gap:4px;
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:3px 8px;border-radius:10px;
+  background:rgba(239,68,68,.15);color:#FCA5A5;border:1px solid rgba(239,68,68,.35);
+}
+.ctx-chip.show{display:inline-flex}
 
 /* ========== TRANSPORT BAR ========== */
 .transport{
@@ -168,7 +222,7 @@ body{
   overflow:hidden;position:relative;z-index:101;
 }
 .is-item{display:flex;align-items:center;gap:4px;white-space:nowrap}
-.is-label{color:var(--text3);font-size:8px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.is-label{font-family:var(--font-display);color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.10em;font-weight:700}
 .is-val{font-weight:600}
 .is-divider{width:1px;height:16px;background:var(--bg3);flex-shrink:0}
 
@@ -189,30 +243,36 @@ body{
 .reads-btn{min-width:44px;min-height:44px}
 .progress-handle{width:36px;height:36px}
 
-/* ========== TABLET+ (landscape, >= 700px) ========== */
-@media (min-width: 700px) and (orientation: landscape) {
+/* ========== TABLET+ (drawer layout: >= 700 wide AND >= 600 tall) ========== */
+/* Threshold picked so phones in landscape (height < 600) stay on mobile layout,
+   while iPad portrait (820x1180) and similar tablets get the drawer. */
+@media (min-width: 700px) and (min-height: 600px) {
   .app{flex-direction:row}
   .drawer{
-    display:flex;width:260px;min-width:260px;
+    display:flex;width:220px;min-width:220px;
   }
-  .mobile-header{display:none}
-  .info-strip{display:none}
-  .play-info{display:block}
+  .mobile-header{display:none;position:static;z-index:auto}
+  .info-strip{display:none;position:static;z-index:auto}
+  .play-info{display:none}               /* redundant with drawer + strat-bar; reclaim field space */
   .legend{display:flex}
   .strat-bar{display:flex}
-  .field-vp{padding:12px;min-height:unset}
-  .transport{height:56px;padding:0 16px;gap:10px;position:static;z-index:auto}
-  .mobile-header{position:static;z-index:auto}
-  .info-strip{position:static;z-index:auto}
+  .field-vp{padding:10px;min-height:unset}
+  .transport{height:58px;padding:0 14px;gap:10px;position:static;z-index:auto}
   .tbtn{width:36px;height:36px}
-  .tbtn.play-btn{width:44px;height:44px}
+  .tbtn.play-btn{width:48px;height:48px;font-size:17px}
   .sbtn{min-height:unset;padding:6px 10px}
-  .reads-btn{min-width:32px;min-height:28px;width:32px}
+  .reads-btn{min-width:34px;min-height:30px;width:34px}
   .progress-handle{width:24px;height:24px}
   .tab{min-height:unset}
   .time-display{font-size:11px;min-width:80px}
   .bottom-sheet{display:none !important}
   .bs-backdrop{display:none !important}
+}
+
+/* ========== DESKTOP (wider drawer + detail panel at >=1024) ========== */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .drawer{width:240px;min-width:240px}
+  .field-vp{padding:14px}
 }
 
 /* Narrow phone: prevent transport overflow */
@@ -222,6 +282,19 @@ body{
   .time-display{min-width:44px;font-size:9px;letter-spacing:0}
   .reads-btn{min-width:44px;min-height:44px;width:44px}
   .info-strip{gap:6px;padding:0 6px;font-size:9px}
+}
+
+/* Phone landscape: reclaim vertical space (height < 500 covers all phones in landscape) */
+@media (max-height: 500px) {
+  .mobile-header{display:none}
+  .info-strip{height:26px;font-size:9px;padding:0 8px;gap:8px}
+  .is-label{font-size:7px}
+  .transport{height:48px;padding-bottom:0}
+  .tbtn{width:38px;height:38px;font-size:13px}
+  .tbtn.play-btn{width:42px;height:42px;font-size:16px}
+  .reads-btn{min-width:38px;min-height:38px}
+  .progress-handle{width:28px;height:28px}
+  .field-vp{padding:3px}
 }
 
 /* ========== QUICK SHEET ========== */
@@ -316,6 +389,7 @@ body{
   display:none;
   position:fixed;top:0;left:0;right:0;
   height:100vh;
+  height:100dvh;
   z-index:100;
   border-radius:16px 16px 0 0;
   background:var(--bg2);
@@ -345,9 +419,9 @@ body{
   opacity:0;pointer-events:none;transition:opacity .3s;
 }
 
-/* ========== DETAIL PANEL (desktop ≥1024px) ========== */
+/* ========== DETAIL PANEL (desktop ≥1024px with sufficient height) ========== */
 .detail-panel{display:none}
-@media (min-width:1024px){
+@media (min-width:1024px) and (min-height: 600px){
   .detail-panel{
     display:flex;flex-direction:column;width:300px;min-width:300px;
     background:var(--bg2);border-left:1px solid var(--bg3);
@@ -462,6 +536,7 @@ body{
       <div class="si"><span class="sl">Field</span><span id="sbField" style="font-weight:600"></span></div>
       <div class="si"><span class="sl">Key</span><span id="sbKey" style="font-weight:600"></span></div>
       <span id="sbWarning"></span>
+      <span class="ctx-chip" id="sbCtxChip"></span>
       <div class="strat-notes" id="sbNotes"></div>
     </div>
 
@@ -478,20 +553,20 @@ body{
 
     <!-- Transport -->
     <div class="transport">
-      <button class="tbtn" id="btnReset" title="Reset">&#9198;</button>
-      <button class="tbtn" id="btnStepBack" title="Step back">&#9664;&#9664;</button>
-      <button class="tbtn play-btn" id="btnPlay" title="Play">&#9654;</button>
-      <button class="tbtn" id="btnStepFwd" title="Step forward">&#9654;&#9654;</button>
+      <button class="tbtn" id="btnReset" title="Reset" aria-label="Reset play to start">&#8634;</button>
+      <button class="tbtn" id="btnStepBack" title="Step back" aria-label="Step back">&#9194;</button>
+      <button class="tbtn play-btn" id="btnPlay" title="Play" aria-label="Play or pause">&#9654;</button>
+      <button class="tbtn" id="btnStepFwd" title="Step forward" aria-label="Step forward">&#9193;</button>
       <span class="time-display" id="timeDisplay">0.0s / 0.0s</span>
-      <div class="progress" id="progress">
+      <div class="progress" id="progress" role="slider" aria-label="Play timeline scrubber" aria-valuemin="0" aria-valuemax="1">
         <div class="progress-fill" id="progressFill"></div>
         <div class="progress-handle" id="progressHandle"></div>
       </div>
-      <button class="reads-btn" id="btnReads" title="Toggle read progressions (D)">R</button>
-      <div class="speed-grp">
-        <button class="sbtn" data-speed="0.5">0.5x</button>
-        <button class="sbtn active" data-speed="1">1x</button>
-        <button class="sbtn" data-speed="2">2x</button>
+      <button class="reads-btn" id="btnReads" title="Toggle read progressions (D)" aria-label="Toggle read progressions">R</button>
+      <div class="speed-grp" role="group" aria-label="Playback speed">
+        <button class="sbtn" data-speed="0.5" aria-label="Half speed">0.5x</button>
+        <button class="sbtn active" data-speed="1" aria-label="Normal speed">1x</button>
+        <button class="sbtn" data-speed="2" aria-label="Double speed">2x</button>
       </div>
     </div>
   </div>
@@ -538,16 +613,19 @@ body{
 ;(function(){
 'use strict';
 
-/* ========== S1: CONFIG & FIELD CONSTANTS ========== */
-const FIELD = { total:68, width:22, ez:7, play:54, nrzDepth:5 };
-const YARD_MID = FIELD.ez + FIELD.play/2; // 34
+/* ========== S1: CONFIG & FIELD CONSTANTS ==========
+   Per KCCC 2026 official rules (confirmed): the field is 54 yards long TOTAL
+   (including both end zones). Each end zone is 7 yd deep, so play area between
+   the goal lines is 40 yd. Midfield sits at yd 27 (7 + 40/2). */
+const FIELD = { total:54, width:22, ez:7, play:40, nrzDepth:5 };
+const YARD_MID = FIELD.ez + FIELD.play/2; // 27
 
 /* FIX 1: 4 NRZ zones including near home goal line */
 const NRZ_ZONES = [
-  {start:7, end:12},    // 5 yds from home goal line
-  {start:29, end:34},   // 5 yds before midfield (home side)
-  {start:34, end:39},   // 5 yds after midfield (away side)
-  {start:56, end:61}    // 5 yds before away goal line
+  {start:7,  end:12},   // 5 yd NRZ just inside own goal line
+  {start:22, end:27},   // 5 yd NRZ before midfield (own side)
+  {start:27, end:32},   // 5 yd NRZ after midfield (away side)
+  {start:42, end:47}    // 5 yd NRZ before away goal line
 ];
 
 const PLAYER_R_BASE = 14;
@@ -644,7 +722,7 @@ const PLAYS = [
     eligibility:'closed', nextStatus:'open', durationMs:3150,
     fieldPos:'No-Run Zones', keyPlayer:'F1 = Receiver (screen)',
     notes:'All receivers go deep, F1 leaks to flat. Quick pass functions like a run in NRZ.',
-    scrimmageYd:29,
+    scrimmageYd:22,
     players:[
       {role:'QB',gender:'male',start:[50,0],
         route:[[50,0,0],[48,-1,.20],[46,-2,.48]],
@@ -670,7 +748,7 @@ const PLAYS = [
     eligibility:'open', nextStatus:'open', durationMs:3550,
     fieldPos:'No-Run Zones, need chunk yds', keyPlayer:'QB reads high-to-low',
     notes:'3-level flood to the right. Overloads one side of the 22-yard-wide field. Throw to F2 to stay Open.',
-    scrimmageYd:29,
+    scrimmageYd:22,
     players:[
       {role:'QB',gender:'male',start:[50,0],
         route:[[50,0,0],[55,-1,.15],[60,-2,.40]],
@@ -722,7 +800,7 @@ const PLAYS = [
     eligibility:'open', nextStatus:'open', durationMs:1900,
     fieldPos:'Red Zone (near end zone)', keyPlayer:'QB reads split',
     notes:'Red zone stacked receivers split to opposite end zone corners. Throw to F1 to stay Open.',
-    scrimmageYd:56,
+    scrimmageYd:42,
     players:[
       {role:'QB',gender:'male',start:[50,0],
         route:[[50,0,0],[48,-1,.20],[45,-2,.50]],
@@ -826,7 +904,7 @@ const PLAYS = [
     eligibility:'open', nextStatus:'open', durationMs:2900,
     fieldPos:'Red Zone', keyPlayer:'QB rollout read',
     notes:'QB rolls right. Reads F2 in corner vs M1 across the back of the end zone.',
-    scrimmageYd:56,
+    scrimmageYd:42,
     players:[
       {role:'QB',gender:'male',start:[50,0],
         route:[[50,0,0],[55,0,.1],[60,-1,.2],[65,-1,.35],[68,0,.50]],
@@ -1182,12 +1260,25 @@ let rafId = null;
 let quickSheetMode = false;
 let swipeInProgress = false;
 let readsMode = false;
+let readsRafId = null;
 
 /* FIX 7: Route cache for performance */
 let routeCache = [];
 
-/* ========== S4: FIELD RENDERER ========== */
-function yToCanvas(yd){ return (yd/FIELD.total)*fieldH; }
+/* ========== S4: FIELD RENDERER ==========
+   Coordinate system: yd=0 is the back of the HOME endzone, yd=54 is the back of AWAY.
+   Own goal line at yd=7, midfield at yd=27, AWAY goal line at yd=47.
+   QB-natural view: offense drives UP the screen (higher yd = higher on canvas).
+   We crop out the HOME endzone (yd 0..FIELD.ez) so the visible field starts at own goal line. */
+const VIEW_MIN_YD = FIELD.ez;                    // 7 — bottom of visible field (own goal line)
+const VIEW_MAX_YD = FIELD.total;                 // 54 — top of visible field (back of AWAY EZ)
+const VIEW_SPAN   = VIEW_MAX_YD - VIEW_MIN_YD;   // 47
+
+/* Position: map a yard value to a canvas y. Vertically flipped + cropped:
+   higher yd (closer to AWAY) returns a SMALLER y (higher on screen). */
+function yToCanvas(yd){ return fieldH - ((yd - VIEW_MIN_YD)/VIEW_SPAN) * fieldH; }
+/* Size: length of a yard-span in canvas pixels (always positive). */
+function ydHeight(span){ return (span/VIEW_SPAN) * fieldH; }
 function xToCanvas(pct){ return (pct/100)*fieldW; }
 
 function playerToCanvas(p, routeT){
@@ -1200,7 +1291,7 @@ function playerToCanvas(p, routeT){
   }
   return {
     x: xToCanvas(pos.x),
-    y: yToCanvas(scY) + yToCanvas(pos.yOff || pos.y || 0)
+    y: yToCanvas(scY + (pos.yOff || pos.y || 0))
   };
 }
 
@@ -1230,7 +1321,7 @@ function buildRouteCache(){
       const pos = interpolateRoute(p.route, s);
       pts.push({
         x: xToCanvas(pos.x),
-        y: yToCanvas(play.scrimmageYd) + yToCanvas(pos.yOff),
+        y: yToCanvas(play.scrimmageYd + pos.yOff),
         t: s
       });
     }
@@ -1244,7 +1335,8 @@ function resizeCanvases(){
   const vw = vp.clientWidth - pad;
   const vh = vp.clientHeight - pad;
   dpr = window.devicePixelRatio || 2;
-  const aspect = FIELD.width / FIELD.total;
+  /* Aspect uses the cropped view span (HOME EZ hidden) for more efficient horizontal use. */
+  const aspect = FIELD.width / VIEW_SPAN;
   if(vw/vh > aspect){ fieldH = vh; fieldW = fieldH * aspect; }
   else { fieldW = vw; fieldH = fieldW / aspect; }
 
@@ -1269,59 +1361,64 @@ function resizeCanvases(){
 
 function drawFieldBG(){
   const ctx = bgCtx;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,fieldW,fieldH);
   // Turf
   ctx.fillStyle='#2D8C3C';
   ctx.fillRect(0,0,fieldW,fieldH);
-  // Stripes
+  // Stripes every 10 yards across the visible range
   ctx.fillStyle='#267332';
-  for(let yd=0;yd<FIELD.total;yd+=10){
-    ctx.fillRect(0,yToCanvas(yd),fieldW,yToCanvas(5));
+  for(let yd = VIEW_MIN_YD; yd < VIEW_MAX_YD; yd += 10){
+    const band = Math.min(5, VIEW_MAX_YD - yd);
+    ctx.fillRect(0, yToCanvas(yd + band), fieldW, ydHeight(band));
   }
-  // End zones
-  ctx.fillStyle='#1A3A5C';
-  ctx.fillRect(0,0,fieldW,yToCanvas(FIELD.ez));
+  // AWAY end zone (target) at top
   ctx.fillStyle='#8C1A1A';
-  ctx.fillRect(0,yToCanvas(FIELD.ez+FIELD.play),fieldW,yToCanvas(FIELD.ez));
+  ctx.fillRect(0, 0, fieldW, ydHeight(FIELD.ez));
   // EZ text
-  ctx.font=`bold ${Math.max(12,fieldW*.08)}px -apple-system,sans-serif`;
+  ctx.font=`bold ${Math.max(14,fieldW*.10)}px -apple-system,sans-serif`;
   ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillStyle='rgba(255,255,255,.12)';
-  ctx.fillText('HOME',fieldW/2,yToCanvas(FIELD.ez/2));
-  ctx.fillText('AWAY',fieldW/2,yToCanvas(FIELD.ez+FIELD.play+FIELD.ez/2));
-  // NRZ
+  ctx.fillStyle='rgba(255,255,255,.18)';
+  ctx.fillText('AWAY', fieldW/2, yToCanvas(FIELD.ez + FIELD.play + FIELD.ez/2));
+  // NRZ zones
   ctx.fillStyle='rgba(255,200,0,.08)';
-  NRZ_ZONES.forEach(z=>{ctx.fillRect(0,yToCanvas(z.start),fieldW,yToCanvas(z.end-z.start))});
+  NRZ_ZONES.forEach(z => {
+    ctx.fillRect(0, yToCanvas(z.end), fieldW, ydHeight(z.end - z.start));
+  });
   ctx.strokeStyle='rgba(255,200,0,.35)';ctx.lineWidth=1;ctx.setLineDash([5,4]);
-  NRZ_ZONES.forEach(z=>{ctx.strokeRect(1,yToCanvas(z.start),fieldW-2,yToCanvas(z.end-z.start))});
+  NRZ_ZONES.forEach(z => {
+    ctx.strokeRect(1, yToCanvas(z.end), fieldW - 2, ydHeight(z.end - z.start));
+  });
   ctx.setLineDash([]);
   ctx.font=`bold ${Math.max(7,fieldW*.03)}px -apple-system,sans-serif`;
   ctx.fillStyle='rgba(255,200,0,.3)';ctx.textAlign='center';ctx.textBaseline='middle';
-  NRZ_ZONES.forEach(z=>{ctx.fillText('NO RUN',fieldW/2,yToCanvas((z.start+z.end)/2))});
-  // Goal lines
+  NRZ_ZONES.forEach(z => {
+    ctx.fillText('NO RUN', fieldW/2, yToCanvas((z.start + z.end)/2));
+  });
+  // Goal lines (own goal line + AWAY goal line)
   ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2;
-  [FIELD.ez, FIELD.ez+FIELD.play].forEach(yd=>{
-    ctx.beginPath();ctx.moveTo(0,yToCanvas(yd));ctx.lineTo(fieldW,yToCanvas(yd));ctx.stroke();
+  [FIELD.ez, FIELD.ez + FIELD.play].forEach(yd => {
+    ctx.beginPath();ctx.moveTo(0, yToCanvas(yd));ctx.lineTo(fieldW, yToCanvas(yd));ctx.stroke();
   });
   // Midfield
   ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(0,yToCanvas(YARD_MID));ctx.lineTo(fieldW,yToCanvas(YARD_MID));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0, yToCanvas(YARD_MID));ctx.lineTo(fieldW, yToCanvas(YARD_MID));ctx.stroke();
   // 5yd markers
   ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;
-  for(let yd=FIELD.ez+5;yd<FIELD.ez+FIELD.play;yd+=5){
-    if(yd===YARD_MID)continue;
-    ctx.beginPath();ctx.moveTo(fieldW*.1,yToCanvas(yd));ctx.lineTo(fieldW*.9,yToCanvas(yd));ctx.stroke();
+  for(let yd = FIELD.ez + 5; yd < FIELD.ez + FIELD.play; yd += 5){
+    if(yd === YARD_MID) continue;
+    ctx.beginPath();ctx.moveTo(fieldW*.1, yToCanvas(yd));ctx.lineTo(fieldW*.9, yToCanvas(yd));ctx.stroke();
   }
-  // Yard labels
+  // Yard labels (distance from AWAY goal, using offense-forward convention)
   ctx.font=`600 ${Math.max(7,fieldW*.028)}px -apple-system,sans-serif`;
   ctx.fillStyle='rgba(255,255,255,.25)';ctx.textBaseline='middle';
-  [{yd:17,t:'10'},{yd:22,t:'15'},{yd:27,t:'20'},{yd:YARD_MID,t:'MID'},{yd:41,t:'20'},{yd:46,t:'15'},{yd:51,t:'10'}].forEach(l=>{
-    ctx.textAlign='left';ctx.fillText(l.t,3,yToCanvas(l.yd));
-    ctx.textAlign='right';ctx.fillText(l.t,fieldW-3,yToCanvas(l.yd));
+  [{yd:12,t:'5'},{yd:17,t:'10'},{yd:22,t:'15'},{yd:YARD_MID,t:'MID'},{yd:32,t:'15'},{yd:37,t:'10'},{yd:42,t:'5'}].forEach(l=>{
+    ctx.textAlign='left';ctx.fillText(l.t, 3, yToCanvas(l.yd));
+    ctx.textAlign='right';ctx.fillText(l.t, fieldW-3, yToCanvas(l.yd));
   });
   // Border
   ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;
-  ctx.strokeRect(0,0,fieldW,fieldH);
+  ctx.strokeRect(0, 0, fieldW, fieldH);
 }
 
 /* ========== S5: PLAY FRAME RENDERER ========== */
@@ -1339,8 +1436,8 @@ function drawPlayFrame(t){
   ctx.beginPath();ctx.moveTo(0,scY);ctx.lineTo(fieldW,scY);ctx.stroke();
   ctx.setLineDash([]);ctx.globalAlpha=1;
 
-  // 7yd rush line
-  const rushY = yToCanvas(play.scrimmageYd - 7);
+  // 7yd rush line (clamped to own goal line when LOS is within 7 yds of it)
+  const rushY = yToCanvas(Math.max(VIEW_MIN_YD, play.scrimmageYd - 7));
   ctx.strokeStyle='rgba(239,68,68,.3)';ctx.lineWidth=1;ctx.setLineDash([4,5]);
   ctx.beginPath();ctx.moveTo(0,rushY);ctx.lineTo(fieldW,rushY);ctx.stroke();
   ctx.setLineDash([]);
@@ -1410,9 +1507,9 @@ function drawPlayFrame(t){
   const thrower = play.players.find(p=>p.action&&p.action.type==='throw');
   if(thrower && thrower.action.target){
     const receiver = play.players.find(p=>p.role===thrower.action.target);
-    if(receiver && t >= (thrower.action.t || 0)){
+    const catchTime = receiver ? (receiver.catchT || .6) : .6;
+    if(receiver && t >= (thrower.action.t || 0) && t <= catchTime){
       const throwPos = playerToCanvas(thrower, thrower.action.t);
-      const catchTime = receiver.catchT || .6;
       const recvPos = playerToCanvas(receiver, catchTime);
       ctx.beginPath();ctx.strokeStyle='#EF4444';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.globalAlpha=.6;
       const mx=(throwPos.x+recvPos.x)/2;
@@ -1594,9 +1691,14 @@ function updateProgress(){
 }
 
 function tickReadsGlow(){
+  readsRafId = null;
   if(!readsMode || animState === 'playing') return;
   drawPlayFrame(animT);
-  requestAnimationFrame(tickReadsGlow);
+  readsRafId = requestAnimationFrame(tickReadsGlow);
+}
+function startReadsGlow(){
+  if(readsRafId != null) cancelAnimationFrame(readsRafId);
+  readsRafId = requestAnimationFrame(tickReadsGlow);
 }
 
 /* ========== S7: UI CONTROLLERS ========== */
@@ -1644,8 +1746,8 @@ function buildDrawer(){
 function renderPlayList(){
   const list = document.getElementById('playList');
   const filtered = activeCategory==='All' ? PLAYS : PLAYS.filter(p=>CAT_MAP[p.cat]===activeCategory);
-  list.innerHTML = filtered.map(p=>`
-    <div class="play-card${p.id===currentPlay.id?' active':''}" data-id="${p.id}">
+  list.innerHTML = filtered.map((p,i)=>`
+    <div class="play-card entering${p.id===currentPlay.id?' active':''}" data-id="${p.id}" style="animation-delay:${i*26}ms">
       <div class="pn">${p.name}</div>
       <div class="pm">
         <span class="badge ${p.eligibility==='closed'?'b-closed':'b-open'}">${p.eligibility}</span>
@@ -1659,6 +1761,8 @@ function renderPlayList(){
       const play = PLAYS.find(p=>p.id===el.dataset.id);
       if(play) selectPlay(play);
     });
+    // Strip the entering class once the animation finishes so it doesn't re-fire on tap highlight.
+    el.addEventListener('animationend',()=>{ el.classList.remove('entering'); el.style.animationDelay=''; },{once:true});
   });
 }
 
@@ -1748,18 +1852,26 @@ function renderRulesTab(){
 function renderContextualRules(){
   const play = currentPlay;
   const el = document.getElementById('ctxRules');
-  if(!play){ el.innerHTML = ''; return; }
+  const chip = document.getElementById('sbCtxChip');
+  if(!play){ el.innerHTML = ''; if(chip){ chip.className='ctx-chip'; chip.textContent=''; } return; }
 
   // Only surface actionable Closed-legality warnings here.
   // General rules live in the Rules tab — no duplication in this overlay.
   const warnings = play.reads ? play.reads.filter(r => !r.closedLegal) : [];
-  if(warnings.length === 0){ el.innerHTML = ''; return; }
+  if(warnings.length === 0){ el.innerHTML = ''; if(chip){ chip.className='ctx-chip'; chip.textContent=''; } return; }
 
   let html = '<div class="ctx-label">CAUTION</div>';
   warnings.forEach(r => {
     html += '<div class="ctx-rule-item warning">Read '+r.readNumber+' ('+r.target+'): OPEN status only</div>';
   });
   el.innerHTML = html;
+
+  // Compact chip for the strat-bar (tablet+). Keeps users aware once play-info overlay is hidden.
+  if(chip){
+    const n = warnings.length;
+    chip.textContent = '⚠ ' + n + ' read' + (n>1?'s':'') + ' need open';
+    chip.className = 'ctx-chip show';
+  }
 }
 
 function updateToggleWarning(){
@@ -1816,7 +1928,7 @@ function updateStratBar(){
 }
 
 function isMobile(){
-  return window.innerWidth <= 700 || (window.innerWidth < window.innerHeight);
+  return !window.matchMedia('(min-width: 700px) and (min-height: 600px)').matches;
 }
 
 function updateMobileHeader(){
@@ -2031,7 +2143,10 @@ function initInteractions(){
   }
   progressEl.addEventListener('pointerdown',(e)=>{scrubbing=true;progressEl.setPointerCapture(e.pointerId);pauseAnim();scrub(e)});
   progressEl.addEventListener('pointermove',(e)=>{if(scrubbing)scrub(e)});
-  progressEl.addEventListener('pointerup',(e)=>{scrubbing=false;progressEl.releasePointerCapture(e.pointerId)});
+  const endScrub = (e)=>{ scrubbing=false; try{ progressEl.releasePointerCapture(e.pointerId); }catch(_){} };
+  progressEl.addEventListener('pointerup', endScrub);
+  progressEl.addEventListener('pointercancel', endScrub);
+  progressEl.addEventListener('lostpointercapture', ()=>{ scrubbing=false; });
 
   // Reads toggle
   document.getElementById('btnReads').addEventListener('click',()=>{
@@ -2040,7 +2155,7 @@ function initInteractions(){
     document.getElementById('readStripBar').dataset.playId = '';
     setTimeout(()=>{
       resizeCanvases(); drawFieldBG(); drawPlayFrame(animT);
-      if(readsMode && animState !== 'playing') requestAnimationFrame(tickReadsGlow);
+      if(readsMode && animState !== 'playing') startReadsGlow();
     }, 0);
   });
 
@@ -2061,7 +2176,7 @@ function initInteractions(){
     if(e.code==='KeyR'){pauseAnim();animT=0;updateProgress();drawPlayFrame(0);document.getElementById('btnPlay').innerHTML='&#9654;';}
     if(e.code==='ArrowDown'){e.preventDefault();const idx=PLAYS.indexOf(currentPlay);if(idx<PLAYS.length-1)selectPlay(PLAYS[idx+1]);}
     if(e.code==='ArrowUp'){e.preventDefault();const idx=PLAYS.indexOf(currentPlay);if(idx>0)selectPlay(PLAYS[idx-1]);}
-    if(e.code==='KeyD'){readsMode=!readsMode;document.getElementById('btnReads').classList.toggle('active',readsMode);document.getElementById('readStripBar').dataset.playId='';setTimeout(()=>{resizeCanvases();drawFieldBG();drawPlayFrame(animT);if(readsMode&&animState!=='playing')requestAnimationFrame(tickReadsGlow);},0);}
+    if(e.code==='KeyD'){readsMode=!readsMode;document.getElementById('btnReads').classList.toggle('active',readsMode);document.getElementById('readStripBar').dataset.playId='';setTimeout(()=>{resizeCanvases();drawFieldBG();drawPlayFrame(animT);if(readsMode&&animState!=='playing')startReadsGlow();},0);}
   });
 }
 
@@ -2092,7 +2207,7 @@ function initSwipe(){
 }
 
 /* ========== S10: BOTTOM SHEET ========== */
-let sheetState = 'peek';
+let sheetState = 'half';
 let sheetInitialized = false;
 
 function getTransportHeight(){
@@ -2151,7 +2266,9 @@ function initBottomSheet(){
   content.appendChild(quickSheet);
   content.appendChild(rulesPanel);
   sheet.style.display = 'flex';
-  setSheetState('peek', false);
+  // Default: 'half' on portrait (play list visible), 'peek' on landscape (preserve field space)
+  var initialState = window.innerHeight >= window.innerWidth ? 'half' : 'peek';
+  setSheetState(initialState, false);
   sheetInitialized = true;
   initSheetDrag();
 

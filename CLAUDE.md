@@ -56,7 +56,7 @@ Or use Claude Preview: the `.claude/launch.json` is configured for `playbook-pre
 ## Working Style
 
 - **Tech stack**: Single-file HTML with inline CSS/JS, Canvas-based rendering. No build tools, no dependencies.
-- **Spatial accuracy**: Field is 54x22 yards with 7-yard end zones, 4 No-Run Zones. All coordinates verified against rules.
+- **Spatial accuracy**: Field is 54x22 yards TOTAL, including two 7-yard end zones (per KCCC 2026 rules diagram). Play area between goal lines is 40 yards. Midfield at yd 27. 4 No-Run Zones at {7-12}, {22-27}, {27-32}, {42-47}. All coordinates verified against rules.
 - **Temporal accuracy**: Per-play durations computed from kinesiologist analysis of recreational athlete speeds.
 - **Strategy data**: Open/Closed toggle system is the central mechanic. All plays tagged with eligibility and toggle effects.
 - **Target device**: iPad Safari (landscape primary, portrait secondary). Also works on desktop browsers.
